@@ -10,13 +10,39 @@ int MAP[] = {
     //3, 13, 12, 2
     0, 1, 2,
     3, 4, 5,
-    6, 7, 8
+    6, 7, 8,
 };
 
 int getbit(int bits, int x, int y)
 {
 	if (x < 0 || x > WIDTH - 1 || y < 0 || y > HEIGHT - 1) return 0;
 	return (bits >> MAP[x + WIDTH * y]) & 1;
+}
+
+int life(int bits, int w, int h)
+{
+    int neighbours = 0;
+
+    for (int y = h - 1; y <= h + 1; ++y)
+    {
+        for (int x = w - 1; x <= w + 1; ++x)
+        {
+            neighbours += getbit(bits, x, y);
+        }
+    }
+
+    int self = getbit(bits, w, h);
+    neighbours -= self;
+
+    return(neighbours == 3 || (self && neighbours == 2));
+}
+
+void putsquare(int color)
+{
+    if (color)
+        printf("\u2b1b");
+    else
+        printf("\u2b1c");
 }
 
 int main(int argc, char **argv)
@@ -30,11 +56,7 @@ int main(int argc, char **argv)
         {
 			for (int w = 0; w < WIDTH; ++w)
 			{
-                if (getbit(i, w, h))
-                    printf("⬛");
-                else
-                    printf("⬜");
-
+                putsquare(getbit(i, w, h));
             }
 
             if (h > 0 && h < HEIGHT - 1)
@@ -46,24 +68,7 @@ int main(int argc, char **argv)
                 
                 for (int w = 1; w < WIDTH - 1; ++w)
                 {
-                    int neighbours = 0;
-
-                    for (int y = h - 1; y <= h + 1; ++y)
-                    {
-                        for (int x = w - 1; x <= w + 1; ++x)
-                        {
-                            neighbours += getbit(i, x, y);
-                        }
-                    }
-
-                    int self = getbit(i, w, h);
-                    neighbours -= self;
-
-                    if (neighbours == 3 || (self && neighbours == 2))
-                        printf("⬛");
-                    else
-                        printf("⬜");
-
+                    putsquare(life(i, w, h));
                 }
             }
 
