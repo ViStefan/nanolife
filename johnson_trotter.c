@@ -39,6 +39,44 @@ void print(shimon *head)
     } while (head != NULL);
 }
 
+shimon *swap(shimon *head, shimon *element)
+{
+    shimon *exchange;
+
+    if (!element->direction ||
+        (element->direction == -1 && element->prev == NULL) ||
+        (element->direction == 1 && element->next == NULL))
+        return head;
+
+    if (element->direction == -1)
+    {
+        shimon *exchange = element->prev;
+        shimon *next = element->next;
+        shimon *prev = exchange->prev;
+        element->prev = prev;
+        element->next = exchange;
+        exchange->prev = element;
+        exchange->next = next;
+    }
+    else
+    {
+        shimon *exchange = element->next;
+        shimon *next = exchange->next;
+        shimon *prev = element->prev;
+        element->prev = exchange;
+        element->next = next;
+        exchange->prev = prev;
+        exchange->next = element;
+    }
+
+    if (element->prev == NULL)
+        return element;
+    if (exchange->prev == NULL)
+        return exchange;
+
+    return head;
+}
+
 shimon *next(shimon *head)
 {
     shimon *max = head;
@@ -48,8 +86,8 @@ shimon *next(shimon *head)
         head = head->next;
     } while (head != NULL);
 
+    swap(head, max);
     return max;
-    
 }
 
 int main()
@@ -58,6 +96,8 @@ int main()
     print(permutation);
     printf("\n");
     shimon *max = next(permutation);
+    print(permutation);
+    printf("\n");
     printf("%d", max->value);
     free(permutation);
     return 0;
