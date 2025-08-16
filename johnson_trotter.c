@@ -57,6 +57,17 @@ shimon *swap(shimon *head, shimon *element)
         element->next = exchange;
         exchange->prev = element;
         exchange->next = next;
+
+        if (next != NULL)
+            next->prev = exchange;
+        if (prev != NULL)
+            prev->next = element;
+        else
+        {
+            element->direction = 0;
+            return element;
+        }
+
     }
     else
     {
@@ -67,27 +78,50 @@ shimon *swap(shimon *head, shimon *element)
         element->next = next;
         exchange->prev = prev;
         exchange->next = element;
-    }
 
-    if (element->prev == NULL)
-        return element;
-    if (exchange->prev == NULL)
-        return exchange;
+        if (next != NULL)
+            next->prev = element;
+        else
+            element->direction = 0;
+        if (prev != NULL)
+            prev->next = exchange;
+        else
+            return exchange;
+    }
 
     return head;
 }
 
 shimon *next(shimon *head)
 {
-    shimon *max = head;
+    shimon *counter = head;
+    shimon *max = NULL;
     do {
-        if (head->direction != 0 && max->value < head->value)
-            max = head;
-        head = head->next;
-    } while (head != NULL);
+        if (counter->direction != 0)
+            if ((max == NULL || max->value < counter->value))
+                max = counter;
+        counter = counter->next;
+    } while (counter != NULL);
 
-    swap(head, max);
-    return max;
+    head = swap(head, max);
+
+    counter = head;
+
+    while (counter != max)
+    {
+        if (counter->value > max->value)
+            counter->direction = 1;
+        counter = counter->next;
+    }
+
+    while (counter != NULL)
+    {
+        if (counter->value > max->value)
+            counter->direction = -1;
+        counter = counter->next;
+    }
+
+    return head;
 }
 
 int main()
@@ -95,10 +129,15 @@ int main()
     permutation = fill(LENGTH);
     print(permutation);
     printf("\n");
-    shimon *max = next(permutation);
-    print(permutation);
-    printf("\n");
-    printf("%d", max->value);
+
+    for (int i = 0; i < 10; ++i)
+    {
+        permutation = next(permutation);
+        print(permutation);
+        printf("\n");
+    }
+
+    // definetly a leak, should preserve original starting address of malloc
     free(permutation);
     return 0;
 }
