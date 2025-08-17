@@ -48,6 +48,8 @@ shimon *swap(shimon *head, shimon *element)
         (element->direction == 1 && element->next == NULL))
         return head;
 
+    // TODO: extract method for general swapping of two elements
+    // TODO: or maybe just use two arrays and no pointer arithmetics?
     if (element->direction == -1)
     {
         shimon *exchange = element->prev;
@@ -61,7 +63,11 @@ shimon *swap(shimon *head, shimon *element)
         if (next != NULL)
             next->prev = exchange;
         if (prev != NULL)
+        {
+            if (prev->value > element->value)
+                element->direction = 0;
             prev->next = element;
+        }
         else
         {
             element->direction = 0;
@@ -80,7 +86,11 @@ shimon *swap(shimon *head, shimon *element)
         exchange->next = element;
 
         if (next != NULL)
+        {
+            if (next->value > element->value)
+                element->direction = 0;
             next->prev = element;
+        }
         else
             element->direction = 0;
         if (prev != NULL)
@@ -102,6 +112,8 @@ shimon *next(shimon *head)
                 max = counter;
         counter = counter->next;
     } while (counter != NULL);
+
+    // TODO: here if max == NULL, last permutation reached
 
     head = swap(head, max);
 
@@ -127,13 +139,14 @@ shimon *next(shimon *head)
 int main()
 {
     permutation = fill(LENGTH);
+    shimon *head = permutation;
     print(permutation);
     printf("\n");
 
-    for (int i = 0; i < 10; ++i)
+    for (int i = 0; i < 5; ++i)
     {
-        permutation = next(permutation);
-        print(permutation);
+        head = next(head);
+        print(head);
         printf("\n");
     }
 
