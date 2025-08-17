@@ -1,156 +1,118 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define LENGTH 3
+#define LENGTH 10
 
-struct shimon
+int permutation[LENGTH];
+int direction[LENGTH];
+
+void fill(int *p, int *d)
 {
-    int value;
-    int direction;
-    struct shimon *next;
-    struct shimon *prev;
-} typedef shimon;
-
-shimon *permutation;
-
-shimon *fill(int size)
-{
-    shimon *array = malloc(sizeof(shimon) * size);
-    for (int i = 0; i < size; ++i)
+    for (int i = 0; i < LENGTH; ++i)
     {
-        array[i].value = i;
-        array[i].direction = -1;
-        array[i].next = &array[i + 1];
-        array[i].prev = &array[i - 1];
+        p[i] = i;
+        d[i] = -1;
     }
 
-    array[0].direction = 0;
-    array[0].prev = NULL;
-    array[size - 1].next = NULL;
-
-    return array;
+    d[0] = 0;
 }
 
-void print(shimon *head)
+void print(int *p, int *d)
 {
-    do {
-        printf("%d (%d) -> ", head->value, head->direction);
-        head = head->next;
-    } while (head != NULL);
+    printf("%d", p[0]);
+    for (int i = 1; i < LENGTH; ++i)
+        printf(", %d", p[i]);
+    printf("\n");
 }
 
-shimon *swap(shimon *head, shimon *element)
+void swap(int *p, int *d, int n)
 {
-    shimon *exchange;
-
-    if (!element->direction ||
-        (element->direction == -1 && element->prev == NULL) ||
-        (element->direction == 1 && element->next == NULL))
-        return head;
+    if (!d[n] ||
+        (d[n] == -1 && n == 0) ||
+        (d[n]  == 1 && n == LENGTH - 1))
+        return;
 
     // TODO: extract method for general swapping of two elements
     // TODO: or maybe just use two arrays and no pointer arithmetics?
-    if (element->direction == -1)
+    if (d[n] == -1)
     {
-        shimon *exchange = element->prev;
-        shimon *next = element->next;
-        shimon *prev = exchange->prev;
-        element->prev = prev;
-        element->next = exchange;
-        exchange->prev = element;
-        exchange->next = next;
+        int t = p[n];
+        p[n] = p[n - 1];
+        p[n - 1] = t;
 
-        if (next != NULL)
-            next->prev = exchange;
-        if (prev != NULL)
-        {
-            if (prev->value > element->value)
-                element->direction = 0;
-            prev->next = element;
-        }
-        else
-        {
-            element->direction = 0;
-            return element;
-        }
+        t = d[n];
+        d[n] = d[n - 1];
+        d[n - 1] = t;
+
+        if (n > 1 && p[n - 2] > p[n - 1])
+            d[n - 1] = 0;
+
+        if (n == 1)
+            d[n - 1] = 0;
 
     }
     else
     {
-        shimon *exchange = element->next;
-        shimon *next = exchange->next;
-        shimon *prev = element->prev;
-        element->prev = exchange;
-        element->next = next;
-        exchange->prev = prev;
-        exchange->next = element;
+        int t = p[n];
+        p[n] = p[n + 1];
+        p[n + 1] = t;
 
-        if (next != NULL)
-        {
-            if (next->value > element->value)
-                element->direction = 0;
-            next->prev = element;
-        }
-        else
-            element->direction = 0;
-        if (prev != NULL)
-            prev->next = exchange;
-        else
-            return exchange;
+        t = d[n];
+        d[n] = d[n + 1];
+        d[n + 1] = t;
+
+        if (n < LENGTH - 2 && p[n + 2] > p[n + 1])
+                d[n + 1] = 0;
+
+        if (n == LENGTH - 2)
+            d[n + 1]  = 0;
     }
-
-    return head;
 }
 
-shimon *next(shimon *head)
+void next(int *p, int *d)
 {
-    shimon *counter = head;
-    shimon *max = NULL;
-    do {
-        if (counter->direction != 0)
-            if ((max == NULL || max->value < counter->value))
-                max = counter;
-        counter = counter->next;
-    } while (counter != NULL);
+    int max = -1;
+    int maxindex = -1;
+    for (int i = 0; i < LENGTH; ++i)
+        if (d[i] != 0 && (max == -1 || max < p[i]))
+        {
+            max = p[i];
+            maxindex = i;
+        }
 
-    // TODO: here if max == NULL, last permutation reached
+    // TODO: here if max == -1, last permutation reached
 
-    head = swap(head, max);
+    int border = maxindex + d[maxindex];
 
-    counter = head;
+    swap(p, d, maxindex);
 
-    while (counter != max)
+    for (int i = 0; i < maxindex; ++i)
+        if (p[i] > max)
+            d[i] = 1;
+
+    for (int i = maxindex + 1; i < LENGTH; ++i)
+        if (p[i] > max)
+            d[i] = -1;
+}
+
+int factorial(int n)
+{
+    int r = 1;
+    do
     {
-        if (counter->value > max->value)
-            counter->direction = 1;
-        counter = counter->next;
-    }
-
-    while (counter != NULL)
-    {
-        if (counter->value > max->value)
-            counter->direction = -1;
-        counter = counter->next;
-    }
-
-    return head;
+        r *= n;
+    } while (--n);
+    return r;
 }
 
 int main()
 {
-    permutation = fill(LENGTH);
-    shimon *head = permutation;
-    print(permutation);
-    printf("\n");
-
-    for (int i = 0; i < 5; ++i)
+    fill(permutation, direction);
+    print(permutation, direction);
+    for (int i = 0; i < factorial(LENGTH) - 1; ++i)
     {
-        head = next(head);
-        print(head);
-        printf("\n");
+        next(permutation, direction);
+        print(permutation, direction);
     }
-
-    // definetly a leak, should preserve original starting address of malloc
-    free(permutation);
     return 0;
 }
