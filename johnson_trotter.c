@@ -1,7 +1,6 @@
 #include <stdio.h>
-#include <stdlib.h>
 
-#define LENGTH 10
+#define LENGTH WIDTH * HEIGHT
 
 int permutation[LENGTH];
 int direction[LENGTH];
@@ -13,16 +12,23 @@ void fill(int *p, int *d)
         p[i] = i;
         d[i] = -1;
     }
-
     d[0] = 0;
 }
 
-void print(int *p, int *d)
+void print(int *p)
 {
     printf("%d", p[0]);
     for (int i = 1; i < LENGTH; ++i)
         printf(", %d", p[i]);
     printf("\n");
+
+    /*
+    printf("%d", p[LENGTH - 1]);
+    for (int i = LENGTH - 2; i >= 0; --i)
+        printf(", %d", p[i]);
+    printf("\n");
+    */
+
 }
 
 void swap(int *p, int *d, int n)
@@ -105,14 +111,16 @@ int factorial(int n)
     return r;
 }
 
+/*
 int main()
 {
     fill(permutation, direction);
-    print(permutation, direction);
-    for (int i = 0; i < factorial(LENGTH) - 1; ++i)
+    print(permutation);
+    for (int i = 0; i < factorial(LENGTH) / 2 - 1; ++i)
     {
         next(permutation, direction);
-        print(permutation, direction);
+        print(permutation);
     }
     return 0;
 }
+*/

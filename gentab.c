@@ -1,35 +1,19 @@
 #include <stdio.h>
 
-#define WIDTH 4
+#define WIDTH 3
 #define HEIGHT 4 
+
+#include "johnson_trotter.c"
 
 #define CHUNK_SIZE (WIDTH - 2) * (HEIGHT - 2)
 
-int MAP[] = {
-    //0, 8, 9, 1,
-    //14, 4, 5, 10,
-    //15, 7, 6, 11,
-    //3, 13, 12, 2
-    //0, 5, 3,
-    //6, 4, 7,
-    //2, 4, 1,
-    //0, 1, 2, 3,
-    //4, 5, 6, 7,
-    //8, 9, 10, 11,
-    //12, 13, 14, 15
-    0, 1, 2, 3,
-    11, 12, 13, 4,
-    10, 15, 14, 5,
-    9, 8, 7, 6
-};
-
-int getbit(int bits, int x, int y)
+int getbit(int bits, int x, int y, int *map)
 {
 	if (x < 0 || x > WIDTH - 1 || y < 0 || y > HEIGHT - 1) return 0;
-	return (bits >> MAP[x + WIDTH * y]) & 1;
+	return (bits >> map[x + WIDTH * y]) & 1;
 }
 
-int life(int bits, int w, int h)
+int life(int bits, int w, int h, int *map)
 {
     int neighbours = 0;
 
@@ -37,17 +21,17 @@ int life(int bits, int w, int h)
     {
         for (int x = w - 1; x <= w + 1; ++x)
         {
-            neighbours += getbit(bits, x, y);
+            neighbours += getbit(bits, x, y, map);
         }
     }
 
-    int self = getbit(bits, w, h);
+    int self = getbit(bits, w, h, map);
     neighbours -= self;
 
     return(neighbours == 3 || (self && neighbours == 2));
 }
 
-int life_chunk(int bits)
+int life_chunk(int bits, int *map)
 {	
     int out = 0;
 
@@ -55,7 +39,7 @@ int life_chunk(int bits)
     {
         for (int w = 1; w < WIDTH - 1; ++w)
         {
-            out = (out << 1) | life(bits, w, h);
+            out = (out << 1) | life(bits, w, h, map);
         }
     }
     return out;
@@ -69,13 +53,13 @@ void putsquare(int color)
         printf("\u2b1c");
 }
 
-void pretty_print(int in, int out)
+void pretty_print_chunk(int in, int out, int *map)
 {
     for (int h = 0; h < HEIGHT; ++h)
     {
         for (int w = 0; w < WIDTH; ++w)
         {
-            putsquare(getbit(in, w, h));
+            putsquare(getbit(in, w, h, map));
         }
 
         if (h > 0 && h < HEIGHT - 1)
@@ -95,15 +79,15 @@ void pretty_print(int in, int out)
     printf("\n");
 }
 
-int main(int argc, char **argv)
+int pretty_print_table(int *map)
 {
 	long int size = 1 << (WIDTH * HEIGHT);
     int result[size];
 	for (int i = 0; i < size; ++i)
 	{
 		printf("\n%d:\n", i);
-        result[i] = life_chunk(i);
-        pretty_print(i, result[i]);
+        result[i] = life_chunk(i, map);
+        pretty_print_chunk(i, result[i], map);
 	}
 
     int prev = result[0];
@@ -119,4 +103,24 @@ int main(int argc, char **argv)
         }
     }
     printf("\n--%d--", n);
+}
+
+int count_monotone(int *map)
+{
+	long int size = 1 << (WIDTH * HEIGHT);
+    int result[size];
+	for (int i = 0; i < size; ++i)
+        result[i] = life_chunk(i, map);
+
+    int prev = result[0];
+    int n = 1;
+    for (int i = 1; i < size; ++i)
+    {
+        if (result[i] != prev)
+        {
+            prev = result[i];
+            ++n;
+        }
+    }
+    return n;
 }
