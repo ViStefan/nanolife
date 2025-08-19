@@ -1,6 +1,6 @@
 
 brute_4x4: brute_4x4.c gentab.c johnson_trotter.c
-	cc brute_4x4.c -o brute_4x4
+	cc brute_4x4.c johnson_trotter.c -o brute_4x4
 
 gentab: gentab.c
 	cc gentab.c -g -o gentab

@@ -1,9 +1,5 @@
 #include <stdio.h>
-
-#define LENGTH WIDTH * HEIGHT
-
-int permutation[LENGTH];
-int direction[LENGTH];
+#include "johnson_trotter.h"
 
 void fill(int *p, int *d)
 {
@@ -114,6 +110,9 @@ int factorial(int n)
 /*
 int main()
 {
+    int permutation[LENGTH];
+    int direction[LENGTH];
+
     fill(permutation, direction);
     print(permutation);
     for (int i = 0; i < factorial(LENGTH) / 2 - 1; ++i)

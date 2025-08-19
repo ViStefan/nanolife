@@ -3,8 +3,6 @@
 #define WIDTH 3
 #define HEIGHT 4 
 
-#include "johnson_trotter.c"
-
 #define CHUNK_SIZE (WIDTH - 2) * (HEIGHT - 2)
 
 int getbit(int bits, int x, int y, int *map)

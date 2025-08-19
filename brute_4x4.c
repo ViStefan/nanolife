@@ -1,6 +1,13 @@
 #include <stdio.h>
 
+#define WIDTH 3
+#define HEIGHT 4
+
+#include "johnson_trotter.h"
 #include "gentab.c"
+
+int permutation[LENGTH];
+int direction[LENGTH];
 
 int main(int argc, char **argv) {
     fill(permutation, direction);
