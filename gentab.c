@@ -73,7 +73,7 @@ void pretty_print_chunk(int in, int out, int *map)
     printf("\n");
 }
 
-int pretty_print_table(int *map)
+void pretty_print_table(int *map)
 {
 	long int size = 1 << (WIDTH * HEIGHT);
     int result[size];
