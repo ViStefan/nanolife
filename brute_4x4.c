@@ -4,7 +4,7 @@
 #define HEIGHT 4
 
 #include "johnson_trotter.h"
-#include "gentab.c"
+#include "gentab.h"
 
 int permutation[LENGTH];
 int direction[LENGTH];

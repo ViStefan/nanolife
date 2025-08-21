@@ -1,9 +1,5 @@
 #include <stdio.h>
-
-#define WIDTH 3
-#define HEIGHT 4 
-
-#define CHUNK_SIZE (WIDTH - 2) * (HEIGHT - 2)
+#include "gentab.h"
 
 int getbit(int bits, int x, int y, int *map)
 {
