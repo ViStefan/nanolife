@@ -1,100 +1,91 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "johnson_trotter.h"
 
-void fill(int *p, int *d)
+permutation *init(int size)
 {
-    for (int i = 0; i < LENGTH; ++i)
+    permutation *p = malloc(sizeof(permutation));
+
+    p->size = size;
+    p->step = 1;
+    p->value = malloc(sizeof(int) * size);
+    p->direction = malloc(sizeof(int) * size);
+
+    for (int i = 0; i < p->size; ++i)
     {
-        p[i] = i;
-        d[i] = -1;
+        p->value[i] = i;
+        p->direction[i] = -1;
     }
-    d[0] = 0;
+    p->direction[0] = 0;
+    
+    return p;
 }
 
-void print(int *p)
+void free_permutation(permutation *p)
 {
-    printf("%d", p[0]);
-    for (int i = 1; i < LENGTH; ++i)
-        printf(", %d", p[i]);
-    printf("\n");
-
-    /*
-    printf("%d", p[LENGTH - 1]);
-    for (int i = LENGTH - 2; i >= 0; --i)
-        printf(", %d", p[i]);
-    printf("\n");
-    */
-
+    free(p->value);
+    free(p->direction);
+    free(p);
 }
 
-void swap(int *p, int *d, int n)
+void print(permutation *p)
 {
-    if (!d[n] ||
-        (d[n] == -1 && n == 0) ||
-        (d[n]  == 1 && n == LENGTH - 1))
+    printf("%d", p->value[0]);
+    for (int i = 1; i < p->size; ++i)
+        printf(", %d", p->value[i]);
+    printf("\n");
+}
+
+void swap(permutation *p, int n)
+{
+    if (!p->direction[n] ||
+        (p->direction[n] == -1 && n == 0) ||
+        (p->direction[n]  == 1 && n == p->size - 1))
         return;
 
-    // TODO: extract method for general swapping of two elements
-    // TODO: or maybe just use two arrays and no pointer arithmetics?
-    if (d[n] == -1)
-    {
-        int t = p[n];
-        p[n] = p[n - 1];
-        p[n - 1] = t;
+    int d = p->direction[n];
+    int is_outermost = (d == -1) ? (n == 1) : (n == p->size - 2);
 
-        t = d[n];
-        d[n] = d[n - 1];
-        d[n - 1] = t;
+    int t = p->value[n];
+    p->value[n] = p->value[n + d];
+    p->value[n + d] = t;
 
-        if (n > 1 && p[n - 2] > p[n - 1])
-            d[n - 1] = 0;
+    t = p->direction[n];
+    p->direction[n] = p->direction[n + d];
+    p->direction[n + d] = t;
 
-        if (n == 1)
-            d[n - 1] = 0;
-
-    }
-    else
-    {
-        int t = p[n];
-        p[n] = p[n + 1];
-        p[n + 1] = t;
-
-        t = d[n];
-        d[n] = d[n + 1];
-        d[n + 1] = t;
-
-        if (n < LENGTH - 2 && p[n + 2] > p[n + 1])
-                d[n + 1] = 0;
-
-        if (n == LENGTH - 2)
-            d[n + 1]  = 0;
-    }
+    if (is_outermost)
+        p->direction[n + d] = 0;
+    else if (p->value[n + (2 * d)] > p->value[n + d])
+        p->direction[n + d] = 0;
 }
 
-void next(int *p, int *d)
+void next(permutation *p)
 {
     int max = -1;
     int maxindex = -1;
-    for (int i = 0; i < LENGTH; ++i)
-        if (d[i] != 0 && (max == -1 || max < p[i]))
+    for (int i = 0; i < p->size; ++i)
+        if (p->direction[i] != 0 && (max == -1 || max < p->value[i]))
         {
-            max = p[i];
+            max = p->value[i];
             maxindex = i;
         }
 
     // TODO: here if max == -1, last permutation reached
 
-    int border = maxindex + d[maxindex];
+    int border = maxindex + p->direction[maxindex];
 
-    swap(p, d, maxindex);
+    swap(p, maxindex);
 
     for (int i = 0; i < maxindex; ++i)
-        if (p[i] > max)
-            d[i] = 1;
+        if (p->value[i] > max)
+            p->direction[i] = 1;
 
-    for (int i = maxindex + 1; i < LENGTH; ++i)
-        if (p[i] > max)
-            d[i] = -1;
+    for (int i = maxindex + 1; i < p->size; ++i)
+        if (p->value[i] > max)
+            p->direction[i] = -1;
+
+    p->step++;
 }
 
 int factorial(int n)
@@ -107,19 +98,3 @@ int factorial(int n)
     return r;
 }
 
-/*
-int main()
-{
-    int permutation[LENGTH];
-    int direction[LENGTH];
-
-    fill(permutation, direction);
-    print(permutation);
-    for (int i = 0; i < factorial(LENGTH) / 2 - 1; ++i)
-    {
-        next(permutation, direction);
-        print(permutation);
-    }
-    return 0;
-}
-*/

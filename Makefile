@@ -7,3 +7,6 @@ gentab: gentab.c
 
 johnson: johnson_trotter.c
 	cc johnson_trotter.c -g -o johnson_trotter
+
+permutate: permutate.c johnson_trotter.c johnson_trotter.h
+	cc permutate.c johnson_trotter.c -g -o permutate

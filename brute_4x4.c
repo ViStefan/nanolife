@@ -1,26 +1,23 @@
 #include <stdio.h>
 
 #define WIDTH 3
-#define HEIGHT 4
+#define HEIGHT 3
 
 #include "johnson_trotter.h"
 #include "gentab.h"
 
-int permutation[LENGTH];
-int direction[LENGTH];
-
 int main(int argc, char **argv) {
-    fill(permutation, direction);
-    int c = count_monotone(permutation);
+	permutation *p = init(WIDTH * HEIGHT);
+    int c = count_monotone(p->value);
     printf("%d : ", c);
-    print(permutation);
+    print(p);
     
-    for (int i = 0; i < factorial(LENGTH) - 1; ++i)
+    for (int i = 0; i < factorial(WIDTH * HEIGHT) - 1; ++i)
     {
-        next(permutation, direction);
-        c = count_monotone(permutation);
+        next(p);
+        c = count_monotone(p->value);
         printf("%d : ", c);
-        print(permutation);
+        print(p);
     }
 
     return 0;

@@ -1,14 +1,13 @@
-#ifndef WIDTH
-#define WIDTH 3
-#endif
+struct permutation
+{
+    int size;
+    int step;
+    int *value;
+    int *direction;
+} typedef permutation;
 
-#ifndef HEIGHT
-#define HEIGHT 3
-#endif
-
-#define LENGTH WIDTH * HEIGHT
-
-void fill(int *p, int *d);
-void print(int *p);
-void next(int *p, int *d);
+permutation *init(int size);
+void print(permutation *p);
+void next(permutation *p);
+void free_permutation(permutation *p);
 int factorial(int n);
