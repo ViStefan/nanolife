@@ -4,18 +4,28 @@
 #include "gentab.h"
 
 int main(int argc, char **argv) {
-	permutation *p = init(WIDTH * HEIGHT);
-    int c = count_monotone(p->value);
+    struct map m;
+    m.width = 3;
+    m.height = 3;
+    
+	permutation *p = init(m.width * m.height);
+    m.value = p->value;
+    int c = count_monotone(&m);
     printf("%d : ", c);
     print(p);
     
-    for (int i = 0; i < factorial(WIDTH * HEIGHT) - 1; ++i)
+    int size = factorial(m.width * m.height) - 1;
+    
+    for (int i = 0; i < size; ++i)
     {
         next(p);
-        c = count_monotone(p->value);
+        m.value = p->value;
+        c = count_monotone(&m);
         printf("%d : ", c);
         print(p);
     }
+
+    free_permutation(p);
 
     return 0;
 }
