@@ -3,7 +3,7 @@
 #endif
 
 #ifndef HEIGHT
-#define HEIGHT 4 
+#define HEIGHT 3 
 #endif
 
 #define CHUNK_SIZE (WIDTH - 2) * (HEIGHT - 2)

@@ -1,8 +1,5 @@
 #include <stdio.h>
 
-#define WIDTH 3
-#define HEIGHT 3
-
 #include "johnson_trotter.h"
 #include "gentab.h"
 
