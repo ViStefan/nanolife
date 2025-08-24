@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 #include "johnson_trotter.h"
-#include "gentab.h"
+#include "lookup_table.h"
 
 int main(int argc, char **argv) {
     struct map m;
