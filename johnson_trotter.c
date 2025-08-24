@@ -30,10 +30,14 @@ void free_permutation(permutation *p)
 
 void print(permutation *p)
 {
-    printf("%d", p->value[0]);
+    // TODO: line length?
+    char buffer[p->size * 4];
+    char *c = buffer;
+
+    c += sprintf(c, "%d", p->value[0]);
     for (int i = 1; i < p->size; ++i)
-        printf(", %d", p->value[i]);
-    printf("\n");
+        c += sprintf(c, ", %d", p->value[i]);
+    printf("%s\n", buffer);
 }
 
 void swap(permutation *p, int n)

@@ -1,20 +1,51 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <pthread.h>
 #include "johnson_trotter.h"
+
+#define THREADS 12
+
+void *permutate_thread(void *t)
+{
+
+    permutation *p = ((permutation *) t);
+
+    int size = factorial(p->size);
+    do
+    {
+        print(p);
+        for (int i = 0; i < THREADS; ++i)
+        {
+            next(p);
+        }
+
+    } while (p->step <= size);
+
+    return NULL;
+}
 
 void permutate(int number)
 {
-    permutation *p = init(number);
-    printf("%d: ", p->step);
-    print(p);
-    for (int i = 0; i < factorial(p->size) - 1; ++i)
+    permutation *p[THREADS];
+
+    for (int i = 0; i < THREADS; ++i)
     {
-        next(p);
-        printf("%d: ", p->step);
-        print(p);
+        p[i] = init(number);
+        for (int j = 0; j < i; ++j)
+            next(p[i]);
     }
-    free_permutation(p);
+
+    pthread_t threads[THREADS];
+
+    for (int i = 0; i < THREADS; ++i)
+        pthread_create(&threads[i], NULL, permutate_thread, p[i]);
+
+    for (int i = 0; i < THREADS; ++i)
+        pthread_join(threads[i], NULL);
+
+    for (int i = 0; i < THREADS; ++i)
+        free_permutation(p[i]);
 }
 
 void usage(char **argv)
