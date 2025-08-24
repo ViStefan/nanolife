@@ -8,7 +8,7 @@ int main(int argc, char **argv) {
     m.width = 3;
     m.height = 3;
     
-	permutation *p = init(m.width * m.height);
+    permutation *p = init(m.width * m.height);
     m.value = p->value;
     int c = count_monotone(&m);
     printf("%d : ", c);
