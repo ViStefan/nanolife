@@ -1,6 +1,51 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <pthread.h>
 #include "johnson_trotter.h"
+
+void *permutate_thread(void *t)
+{
+
+    permutation_threaded *pt = ((permutation_threaded*) t);
+    permutation *p = pt->perm;
+
+    // should store permutations number in struct?
+    int size = factorial(p->size);
+    do
+    {
+        pt->callback(p);
+        for (int i = 0; i < pt->threads; ++i)
+            next(p);
+
+    } while (p->step <= size);
+
+    return NULL;
+}
+
+void permutate(int number, int threads, void (*callback)(permutation *p))
+{
+    permutation_threaded pt[threads];
+
+    for (int i = 0; i < threads; ++i)
+    {
+        pt[i].callback = callback;
+        pt[i].threads = threads;
+        pt[i].perm = init(number);
+        for (int j = 0; j < i; ++j)
+            next(pt[i].perm);
+    }
+
+    pthread_t pthreads[threads];
+
+    for (int i = 0; i < threads; ++i)
+        pthread_create(&pthreads[i], NULL, permutate_thread, &pt[i]);
+
+    for (int i = 0; i < threads; ++i)
+        pthread_join(pthreads[i], NULL);
+
+    for (int i = 0; i < threads; ++i)
+        free_permutation(pt[i].perm);
+}
 
 permutation *init(int size)
 {
