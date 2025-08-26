@@ -28,7 +28,8 @@ void pretty_print_chunk(int in, int out, map *m)
             
             for (int w = 0; w < m->width - 2; ++w)
             {
-                putsquare((out >> (((m->width * m->height) - 1) - (w + (h - 1) * (m->width - 2)))) & 1);
+                // TODO: pretty ugly line
+                putsquare((out >> ((((m->width - 2) * (m->height - 2)) - 1) - (w + (h - 1) * (m->width - 2)))) & 1);
             }
         }
         printf("\n");

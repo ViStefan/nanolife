@@ -6,7 +6,7 @@
 int main(int argc, char **argv) {
     struct map m;
     m.width = 3;
-    m.height = 3;
+    m.height = 4;
     
     permutation *p = init(m.width * m.height);
     m.value = p->value;

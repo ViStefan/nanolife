@@ -3,7 +3,7 @@
 #include <errno.h>
 #include "johnson_trotter.h"
 
-#define THREADS 12
+#define THREADS 4
 
 void usage(char **argv)
 {
