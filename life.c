@@ -1,6 +1,4 @@
 #include <pthread.h>
-// TODO: temporary!
-#include <stdio.h>
 #include "map.h"
 #include "life.h"
 

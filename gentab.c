@@ -8,7 +8,7 @@ int main(int argc, char **argv)
     map m;
     // TODO: parametrize
     m.width = 3;
-    m.height = 4;
+    m.height = 3;
 
     permutation *p = init(m.width * m.height);
     m.value = p->value;
