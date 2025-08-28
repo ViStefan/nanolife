@@ -5,7 +5,7 @@
 #include "lookup_table.h"
 
 // TODO: parametrize
-#define THREADS 11
+#define THREADS 8
 #define WIDTH 3
 #define HEIGHT 3
 
@@ -20,7 +20,7 @@ void *brute_thread(void *t)
 {
     thread_data *td = ((thread_data *)t);
 
-    for (int i = td->start; i < td->stop; ++i)
+    for (int i = td->start; i <= td->stop; ++i)
     {
         td->m->value = td->p->value;
         int c = count_monotone(td->m);

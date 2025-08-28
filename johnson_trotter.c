@@ -119,6 +119,9 @@ void swap(permutation *p, int n)
 
 int next(permutation *p)
 {
+    if (p->step > p->size - 1)
+        return PERMUTATION_OVERFLOW;
+        
     int max = -1;
     int maxindex = -1;
     for (int i = 0; i < p->n; ++i)
@@ -127,10 +130,6 @@ int next(permutation *p)
             max = p->value[i];
             maxindex = i;
         }
-
-    // TODO: here if max == -1, last permutation reached
-
-    int border = maxindex + p->direction[maxindex];
 
     swap(p, maxindex);
 
@@ -143,6 +142,7 @@ int next(permutation *p)
             p->direction[i] = -1;
 
     p->step++;
+    return 0;
 }
 
 int factorial(int n)
