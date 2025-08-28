@@ -1,9 +1,55 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <pthread.h>
 #include "johnson_trotter.h"
 
 #define THREADS 8
+
+typedef struct
+{
+    permutation *perm;
+    int threads;
+    void (*callback)(permutation *p);
+} thread_data;
+
+
+void *permutate_thread(void *t)
+{
+    thread_data *td = ((thread_data*) t);
+    permutation *p = td->perm;
+
+    while (p->step <= p->size)
+    {
+        td->callback(p);
+        for (int i = 0; i < td->threads; ++i)
+            next(p);
+
+    } 
+
+    return NULL;
+}
+
+void permutate(int number, int threads, void (*callback)(permutation *p))
+{
+    thread_data td[threads];
+    pthread_t pthreads[threads];
+
+    for (int i = 0; i < threads; ++i)
+    {
+        td[i].callback = callback;
+        td[i].threads = threads;
+        td[i].perm = init(number);
+        for (int j = 0; j < i; ++j)
+            next(td[i].perm);
+        pthread_create(&pthreads[i], NULL, permutate_thread, &td[i]);
+    }
+
+    for (int i = 0; i < threads; ++i) {
+        pthread_join(pthreads[i], NULL);
+        free_permutation(td[i].perm);
+    }
+}
 
 void usage(char **argv)
 {

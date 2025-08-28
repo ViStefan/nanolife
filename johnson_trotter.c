@@ -1,45 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <pthread.h>
 #include "johnson_trotter.h"
-
-void *permutate_thread(void *t)
-{
-
-    permutation_threaded *pt = ((permutation_threaded*) t);
-    permutation *p = pt->perm;
-
-    while (p->step <= p->size)
-    {
-        pt->callback(p);
-        for (int i = 0; i < pt->threads; ++i)
-            next(p);
-
-    } 
-
-    return NULL;
-}
-
-void permutate(int number, int threads, void (*callback)(permutation *p))
-{
-    permutation_threaded pt[threads];
-    pthread_t pthreads[threads];
-
-    for (int i = 0; i < threads; ++i)
-    {
-        pt[i].callback = callback;
-        pt[i].threads = threads;
-        pt[i].perm = init(number);
-        for (int j = 0; j < i; ++j)
-            next(pt[i].perm);
-        pthread_create(&pthreads[i], NULL, permutate_thread, &pt[i]);
-    }
-
-    for (int i = 0; i < threads; ++i) {
-        pthread_join(pthreads[i], NULL);
-        free_permutation(pt[i].perm);
-    }
-}
 
 permutation *init(int n)
 {
@@ -119,7 +80,8 @@ void swap(permutation *p, int n)
 
 int next(permutation *p)
 {
-    if (p->step > p->size - 1)
+    p->step++;
+    if (p->step > p->size)
         return PERMUTATION_OVERFLOW;
         
     int max = -1;
@@ -141,7 +103,6 @@ int next(permutation *p)
         if (p->value[i] > max)
             p->direction[i] = -1;
 
-    p->step++;
     return 0;
 }
 
