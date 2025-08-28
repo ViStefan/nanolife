@@ -3,7 +3,7 @@
 #include <errno.h>
 #include "johnson_trotter.h"
 
-#define THREADS 4
+#define THREADS 8
 
 void usage(char **argv)
 {
@@ -11,6 +11,7 @@ void usage(char **argv)
     printf("\tNUM - sane number of elements to permutate\n");
 }
 
+// TODO: refactor
 void print_permutation(permutation *p)
 {
     print(p);

@@ -10,8 +10,9 @@ int main(int argc, char **argv)
     m.width = 3;
     m.height = 3;
 
-    permutation *p = init(m.width * m.height);
-    m.value = p->value;
+    //permutation *p = init(m.width * m.height);
+    int map[] = {1, 2, 3, 4, 0, 5, 6, 7, 8};
+    m.value = map;
 
     pretty_print_table(&m);
 

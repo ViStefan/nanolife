@@ -9,15 +9,13 @@ void *permutate_thread(void *t)
     permutation_threaded *pt = ((permutation_threaded*) t);
     permutation *p = pt->perm;
 
-    // should store permutations number in struct?
-    int size = factorial(p->size);
-    do
+    while (p->step <= p->size)
     {
         pt->callback(p);
         for (int i = 0; i < pt->threads; ++i)
             next(p);
 
-    } while (p->step <= size);
+    } 
 
     return NULL;
 }
@@ -43,16 +41,17 @@ void permutate(int number, int threads, void (*callback)(permutation *p))
     }
 }
 
-permutation *init(int size)
+permutation *init(int n)
 {
     permutation *p = malloc(sizeof(permutation));
 
-    p->size = size;
+    p->n = n;
+    p->size = factorial(n);
     p->step = 1;
-    p->value = malloc(sizeof(int) * size);
-    p->direction = malloc(sizeof(int) * size);
+    p->value = malloc(sizeof(int) * n);
+    p->direction = malloc(sizeof(int) * n);
 
-    for (int i = 0; i < p->size; ++i)
+    for (int i = 0; i < p->n; ++i)
     {
         p->value[i] = i;
         p->direction[i] = -1;
@@ -72,24 +71,37 @@ void free_permutation(permutation *p)
 void print(permutation *p)
 {
     // TODO: line length?
-    char buffer[p->size * 4];
+    char buffer[p->n * 4];
     char *c = buffer;
 
     c += sprintf(c, "%d", p->value[0]);
-    for (int i = 1; i < p->size; ++i)
+    for (int i = 1; i < p->n ; ++i)
         c += sprintf(c, ", %d", p->value[i]);
     printf("%s\n", buffer);
+}
+
+// TODO: temporary code duplication with print(p);
+char *serialize(permutation *p)
+{
+    // TODO: line length?
+    char *buffer = malloc(p->n * 4 * sizeof(char));
+    char *c = buffer;
+
+    c += sprintf(c, "%d", p->value[0]);
+    for (int i = 1; i < p->n; ++i)
+        c += sprintf(c, ", %d", p->value[i]);
+    return buffer;
 }
 
 void swap(permutation *p, int n)
 {
     if (!p->direction[n] ||
         (p->direction[n] == -1 && n == 0) ||
-        (p->direction[n]  == 1 && n == p->size - 1))
+        (p->direction[n]  == 1 && n == p->n - 1))
         return;
 
     int d = p->direction[n];
-    int is_outermost = (d == -1) ? (n == 1) : (n == p->size - 2);
+    int is_outermost = (d == -1) ? (n == 1) : (n == p->n - 2);
 
     int t = p->value[n];
     p->value[n] = p->value[n + d];
@@ -105,11 +117,11 @@ void swap(permutation *p, int n)
         p->direction[n + d] = 0;
 }
 
-void next(permutation *p)
+int next(permutation *p)
 {
     int max = -1;
     int maxindex = -1;
-    for (int i = 0; i < p->size; ++i)
+    for (int i = 0; i < p->n; ++i)
         if (p->direction[i] != 0 && (max == -1 || max < p->value[i]))
         {
             max = p->value[i];
@@ -126,7 +138,7 @@ void next(permutation *p)
         if (p->value[i] > max)
             p->direction[i] = 1;
 
-    for (int i = maxindex + 1; i < p->size; ++i)
+    for (int i = maxindex + 1; i < p->n; ++i)
         if (p->value[i] > max)
             p->direction[i] = -1;
 

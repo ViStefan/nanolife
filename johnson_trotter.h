@@ -1,5 +1,8 @@
+#define PERMUTATION_OVERFLOW -1
+
 struct permutation
 {
+    int n;
     int size;
     int step;
     int *value;
@@ -14,8 +17,9 @@ struct permutation_threaded
 } typedef permutation_threaded;
 
 void permutate(int number, int threads, void (*callback)(permutation *p));
-permutation *init(int size);
+permutation *init(int n);
 void print(permutation *p);
-void next(permutation *p);
+char *serialize(permutation *p);
+int next(permutation *p);
 void free_permutation(permutation *p);
 int factorial(int n);
