@@ -57,12 +57,6 @@ void usage(char **argv)
     printf("\tNUM - sane number of elements to permutate\n");
 }
 
-// TODO: refactor
-void print_permutation(permutation *p)
-{
-    print(p);
-}
-
 int main(int argc, char **argv)
 {
     if (argc != 2)
@@ -80,7 +74,7 @@ int main(int argc, char **argv)
         return 2;
     }
 
-    permutate(num, THREADS, &print_permutation);
+    permutate(num, THREADS, &print);
 
     return 0;
 }

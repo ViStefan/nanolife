@@ -12,6 +12,9 @@ void putsquare(int color)
 
 void pretty_print_chunk(int in, int out, map *m)
 {
+    int out_width = m->width - 2;
+    int out_size = (m->height - 2) * out_width - 1;
+
     for (int h = 0; h < m->height; ++h)
     {
         for (int w = 0; w < m->width; ++w)
@@ -28,8 +31,7 @@ void pretty_print_chunk(int in, int out, map *m)
             
             for (int w = 0; w < m->width - 2; ++w)
             {
-                // TODO: pretty ugly line
-                putsquare((out >> ((((m->width - 2) * (m->height - 2)) - 1) - (w + (h - 1) * (m->width - 2)))) & 1);
+                putsquare((out >> (out_size - (w + (h - 1) * out_width))) & 1);
             }
         }
         printf("\n");

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "johnson_trotter.h"
+#include "utils.h"
 
 permutation *init(int n)
 {
@@ -31,21 +32,14 @@ void free_permutation(permutation *p)
 
 void print(permutation *p)
 {
-    // TODO: line length?
-    char buffer[p->n * 4];
-    char *c = buffer;
-
-    c += sprintf(c, "%d", p->value[0]);
-    for (int i = 1; i < p->n ; ++i)
-        c += sprintf(c, ", %d", p->value[i]);
+    char *buffer = serialize(p);
     printf("%s\n", buffer);
+    free(buffer);
 }
 
-// TODO: temporary code duplication with print(p);
 char *serialize(permutation *p)
 {
-    // TODO: line length?
-    char *buffer = malloc(p->n * 4 * sizeof(char));
+    char *buffer = malloc(sequence_string_length(p->n));
     char *c = buffer;
 
     c += sprintf(c, "%d", p->value[0]);
@@ -105,14 +99,3 @@ int next(permutation *p)
 
     return 0;
 }
-
-int factorial(int n)
-{
-    int r = 1;
-    do
-    {
-        r *= n;
-    } while (--n);
-    return r;
-}
-
