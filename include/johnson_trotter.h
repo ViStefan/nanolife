@@ -1,13 +1,13 @@
 #define PERMUTATION_OVERFLOW -1
 
-struct permutation
+typedef struct
 {
     int n;
     int size;
     int step;
     int *value;
     int *direction;
-} typedef permutation;
+} permutation;
 
 permutation *init(int n);
 void print(permutation *p);

@@ -41,7 +41,7 @@ void *brute_thread(void *t)
     return NULL;
 }
 
-int main(int argc, char **argv) {
+int main(void) {
     int aligned_size = factorial(WIDTH * HEIGHT) + THREADS;
     const int chunk_size = aligned_size / THREADS;
 

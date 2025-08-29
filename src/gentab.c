@@ -3,7 +3,7 @@
 #include "johnson_trotter.h"
 #include "pretty_print.h"
 
-int main(int argc, char **argv)
+int main(void)
 {
     map m;
     // TODO: parametrize

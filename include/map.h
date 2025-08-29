@@ -1,12 +1,12 @@
 #ifndef MAP_H
 #define MAP_H
 
-struct map
+typedef struct
 {
 	int *value;
 	int width;
 	int height;
-} typedef map;
+} map;
 
 int getbit(int bits, int x, int y, map *m);
 

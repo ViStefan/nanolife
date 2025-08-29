@@ -1,15 +1,18 @@
-.PHONY: clean all
+.PHONY: clean all test
 
 all: brute_4x4 gentab permutate
 
-brute_4x4: brute_4x4.c lookup_table.c johnson_trotter.c life.c map.c utils.c
-	cc brute_4x4.c johnson_trotter.c lookup_table.c life.c map.c utils.c -o brute_4x4
+brute_4x4: src/brute_4x4.c src/lookup_table.c src/johnson_trotter.c src/life.c src/map.c src/utils.c
+	cc -Wall -Wextra -Werror -pedantic -std=c99 -I ./include src/brute_4x4.c src/johnson_trotter.c src/lookup_table.c src/life.c src/map.c src/utils.c -o brute_4x4
 
-gentab: gentab.c johnson_trotter.c pretty_print.c life.c map.c utils.c
-	cc gentab.c johnson_trotter.c pretty_print.c life.c map.c utils.c -o gentab
+gentab: src/gentab.c src/johnson_trotter.c src/pretty_print.c src/life.c src/map.c src/utils.c
+	cc -Wall -Wextra -Werror -pedantic -std=c99 -I ./include src/gentab.c src/johnson_trotter.c src/pretty_print.c src/life.c src/map.c src/utils.c -o gentab
 
-permutate: permutate.c johnson_trotter.c utils.c
-	cc permutate.c johnson_trotter.c utils.c -o permutate
+permutate: src/permutate.c src/johnson_trotter.c src/utils.c
+	cc -Wall -Wextra -Werror -pedantic -std=c99 -I ./include src/permutate.c src/johnson_trotter.c src/utils.c -o permutate
+
+test:
+	./test/smoke.sh
 
 clean:
 	rm brute_4x4 gentab permutate
