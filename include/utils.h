@@ -1,2 +1,2 @@
-int factorial(int n);
+long long factorial(int n);
 int sequence_string_length(int n);

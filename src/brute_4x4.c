@@ -3,6 +3,7 @@
 #include <pthread.h>
 #include "johnson_trotter.h"
 #include "lookup_table.h"
+#include "utils.h"
 
 // TODO: parametrize
 #define THREADS 8
@@ -12,15 +13,15 @@
 typedef struct {
     map *m;
     permutation *p;
-    int start;
-    int stop;
+    unsigned long long start;
+    unsigned long long stop;
 } thread_data;
 
 void *brute_thread(void *t)
 {
     thread_data *td = ((thread_data *)t);
 
-    for (int i = td->start; i <= td->stop; ++i)
+    for (unsigned long long i = td->start; i <= td->stop; ++i)
     {
         td->m->value = td->p->value;
         int c = count_monotone(td->m);
@@ -42,8 +43,8 @@ void *brute_thread(void *t)
 }
 
 int main(void) {
-    int aligned_size = factorial(WIDTH * HEIGHT) + THREADS;
-    const int chunk_size = aligned_size / THREADS;
+    const unsigned long long aligned_size = factorial(WIDTH * HEIGHT) + THREADS;
+    const unsigned long long chunk_size = aligned_size / THREADS;
 
     pthread_t pthreads[THREADS];
     thread_data td[THREADS];

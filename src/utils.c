@@ -1,4 +1,4 @@
-int factorial(int n)
+unsigned long long factorial(int n)
 {
     int r = 1;
     do
