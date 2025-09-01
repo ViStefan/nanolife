@@ -11,7 +11,7 @@ gentab: src/gentab.c src/johnson_trotter.c src/pretty_print.c src/life.c src/map
 permutate: src/permutate.c src/johnson_trotter.c src/utils.c
 	cc -Wall -Wextra -Werror -pedantic -std=c99 -I ./include src/permutate.c src/johnson_trotter.c src/utils.c -o permutate
 
-test:
+check:
 	./test/smoke.sh
 
 clean:
