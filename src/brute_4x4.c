@@ -12,7 +12,7 @@
 
 typedef struct {
     map_t *m;
-    permutation *p;
+    permutation_t *p;
     unsigned long long start;
     unsigned long long stop;
 } thread_data;
@@ -49,7 +49,7 @@ int main(void) {
     pthread_t pthreads[THREADS];
     thread_data td[THREADS];
     map_t m[THREADS];
-    permutation *p[THREADS];
+    permutation_t *p[THREADS];
 
 	for (int i = 0; i < THREADS; ++i)
     {

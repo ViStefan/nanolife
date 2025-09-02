@@ -8,16 +8,16 @@
 
 typedef struct
 {
-    permutation *perm;
+    permutation_t *perm;
     int threads;
-    void (*callback)(permutation *p);
+    void (*callback)(permutation_t *p);
 } thread_data;
 
 
 void *permutate_thread(void *t)
 {
     thread_data *td = ((thread_data*) t);
-    permutation *p = td->perm;
+    permutation_t *p = td->perm;
 
     while (p->step <= p->size)
     {
@@ -30,7 +30,7 @@ void *permutate_thread(void *t)
     return NULL;
 }
 
-void permutate(int number, int threads, void (*callback)(permutation *p))
+void permutate(int number, int threads, void (*callback)(permutation_t *p))
 {
     thread_data td[threads];
     pthread_t pthreads[threads];

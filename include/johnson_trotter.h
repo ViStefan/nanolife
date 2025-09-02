@@ -7,10 +7,10 @@ typedef struct
     unsigned long long step;
     int *value;
     int *direction;
-} permutation;
+} permutation_t;
 
-permutation *init(int n);
-void print(permutation *p);
-char *serialize(permutation *p);
-int next(permutation *p);
-void free_permutation(permutation *p);
+permutation_t *init(int n);
+void print(permutation_t *p);
+char *serialize(permutation_t *p);
+int next(permutation_t *p);
+void free_permutation(permutation_t *p);
