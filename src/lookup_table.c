@@ -2,7 +2,7 @@
 #include "map.h"
 #include "life.h"
 
-int count_monotone(map *m)
+int count_monotone(map_t *m)
 {
 	long int size = 1 << (m->width * m->height);
     int result[size];

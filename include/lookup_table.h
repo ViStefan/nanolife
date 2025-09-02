@@ -1,4 +1,4 @@
 #include "map.h"
 
-int count_monotone(map *m);
+int count_monotone(map_t *m);
 

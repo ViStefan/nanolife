@@ -11,7 +11,7 @@
 #define HEIGHT 3
 
 typedef struct {
-    map *m;
+    map_t *m;
     permutation *p;
     unsigned long long start;
     unsigned long long stop;
@@ -48,7 +48,7 @@ int main(void) {
 
     pthread_t pthreads[THREADS];
     thread_data td[THREADS];
-    map m[THREADS];
+    map_t m[THREADS];
     permutation *p[THREADS];
 
 	for (int i = 0; i < THREADS; ++i)

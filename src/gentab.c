@@ -5,7 +5,7 @@
 
 int main(void)
 {
-    map m;
+    map_t m;
     // TODO: parametrize
     m.width = 3;
     m.height = 3;

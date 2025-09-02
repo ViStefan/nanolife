@@ -1,7 +1,7 @@
 #include "map.h"
 #include "life.h"
 
-int life(int bits, int w, int h, map *m)
+int life(int bits, int w, int h, map_t *m)
 {
     int neighbours = 0;
 
@@ -19,7 +19,7 @@ int life(int bits, int w, int h, map *m)
     return(neighbours == 3 || (self && neighbours == 2));
 }
 
-int life_chunk(int bits, map *m)
+int life_chunk(int bits, map_t *m)
 {	
     int out = 0;
 

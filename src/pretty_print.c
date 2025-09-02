@@ -10,7 +10,7 @@ void putsquare(int color)
         printf("\u2b1c");
 }
 
-void pretty_print_chunk(int in, int out, map *m)
+void pretty_print_chunk(int in, int out, map_t *m)
 {
     int out_width = m->width - 2;
     int out_size = (m->height - 2) * out_width - 1;
@@ -39,7 +39,7 @@ void pretty_print_chunk(int in, int out, map *m)
     printf("\n");
 }
 
-void pretty_print_table(map *m)
+void pretty_print_table(map_t *m)
 {
 	long int size = 1 << (m->width * m->height);
     int result[size];
