@@ -1,6 +1,7 @@
-gentab
 brute_4x4
-result
+gentab
 permutate
+rotate
+result
 tags
 .ycm_extra_conf.py
