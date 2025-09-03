@@ -24,10 +24,12 @@ void *brute_thread(void *t)
     for (unsigned long long i = td->start; i <= td->stop; ++i)
     {
         td->m->value = td->p->value;
-        int c = count_monotone(td->m);
+        lookup_table_t *table = generate_table(td->m);
+        int c = count_monotone(table);
         char *s = serialize(td->p);
         printf("%d : %s\n", c, s);
         free(s);
+        free_lookup_table(table);
 
         int status;
         for (int j = 0; j < THREADS; ++j)

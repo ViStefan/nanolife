@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "pretty_print.h"
 #include "life.h"
+#include "lookup_table.h"
 
 void putsquare(int color)
 {
@@ -41,28 +42,14 @@ void pretty_print_chunk(int in, int out, map_t *m)
 
 void pretty_print_table(map_t *m)
 {
-	long int size = 1 << (m->width * m->height);
-    int result[size];
-	for (int i = 0; i < size; ++i)
+    lookup_table_t *table = generate_table(m);
+	for (size_t i = 0; i < table->size; ++i)
 	{
-		printf("\n%d:\n", i);
-        result[i] = life_chunk(i, m);
-        pretty_print_chunk(i, result[i], m);
+		printf("\n%zu:\n", i);
+        pretty_print_chunk(i, table->table[i], table->map);
 	}
 
-    int prev = result[0];
-    int n = 1;
-    printf("0");
-    for (int i = 1; i < size; ++i)
-    {
-        if (result[i] != prev)
-        {
-            printf(", %d", i);
-            prev = result[i];
-            ++n;
-        }
-    }
-    printf("\n--%d--", n);
+    free_lookup_table(table);
 }
 
 

@@ -1,21 +1,36 @@
+#include <stdlib.h>
 #include "lookup_table.h"
 #include "map.h"
 #include "life.h"
 
-int count_monotone(map_t *m)
+lookup_table_t *generate_table(map_t *m)
 {
-	long int size = 1 << (m->width * m->height);
-    int result[size];
-	for (int i = 0; i < size; ++i)
-        result[i] = life_chunk(i, m);
+    lookup_table_t *table = malloc(sizeof(lookup_table_t));
+    table->map = m;
+    table->size = 1 << (m->width * m->height);
+    table->table = malloc(sizeof(int) * table->size);
 
-    int prev = result[0];
-    int n = 1;
-    for (int i = 1; i < size; ++i)
+    for (size_t i = 0; i < table->size; ++i)
+        table->table[i] = life_chunk(i, m);
+
+    return table;
+}
+
+void free_lookup_table(lookup_table_t *t)
+{
+    free(t->table);
+    free(t);
+}
+
+size_t count_monotone(lookup_table_t *table)
+{
+    int prev = table->table[0];
+    size_t n = 1;
+    for (size_t i = 1; i < table->size; ++i)
     {
-        if (result[i] != prev)
+        if (table->table[i] != prev)
         {
-            prev = result[i];
+            prev = table->table[i];
             ++n;
         }
     }
