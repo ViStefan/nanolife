@@ -40,16 +40,13 @@ void pretty_print_chunk(int in, int out, map_t *m)
     printf("\n");
 }
 
-void pretty_print_table(map_t *m)
+void pretty_print_table(lookup_table_t *table)
 {
-    lookup_table_t *table = generate_table(m);
 	for (size_t i = 0; i < table->size; ++i)
 	{
-		printf("\n%zu:\n", i);
+        printf("\n%zu:\n", i);
         pretty_print_chunk(i, table->table[i], table->map);
 	}
-
-    free_lookup_table(table);
 }
 
 
