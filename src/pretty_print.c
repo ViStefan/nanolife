@@ -19,9 +19,7 @@ void pretty_print_chunk(int in, int out, map_t *m)
     for (int h = 0; h < m->height; ++h)
     {
         for (int w = 0; w < m->width; ++w)
-        {
             putsquare(getbit(in, w, h, m));
-        }
 
         if (h > 0 && h < m->height - 1)
         {
@@ -31,22 +29,19 @@ void pretty_print_chunk(int in, int out, map_t *m)
                 printf("   ");
             
             for (int w = 0; w < m->width - 2; ++w)
-            {
                 putsquare((out >> (out_size - (w + (h - 1) * out_width))) & 1);
-            }
         }
         printf("\n");
     }
-    printf("\n");
 }
 
 void pretty_print_table(lookup_table_t *table)
 {
-	for (size_t i = 0; i < table->size; ++i)
-	{
+    for (size_t i = 0; i < table->size; ++i)
+    {
         printf("\n%zu:\n", i);
         pretty_print_chunk(i, table->table[i], table->map);
-	}
+    }
 }
 
 

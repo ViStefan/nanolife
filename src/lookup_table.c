@@ -27,12 +27,11 @@ size_t count_monotone(lookup_table_t *table)
     int prev = table->table[0];
     size_t n = 1;
     for (size_t i = 1; i < table->size; ++i)
-    {
         if (table->table[i] != prev)
         {
             prev = table->table[i];
             ++n;
         }
-    }
+
     return n;
 }

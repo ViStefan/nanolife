@@ -43,4 +43,4 @@ echo Bruteforce uniqness
 assert "$(./brute_4x4 | sort -h | uniq -d)" ""
 
 echo
-[ $FAILED -eq 0 ] && ok "No errors ocurred" || fail "Some errors occured"
+[ $FAILED -eq 0 ] && ok "No errors occurred" || fail "Some errors occured"

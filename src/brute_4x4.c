@@ -53,7 +53,7 @@ int main(void) {
     map_t m[THREADS];
     permutation_t *p[THREADS];
 
-	for (int i = 0; i < THREADS; ++i)
+    for (int i = 0; i < THREADS; ++i)
     {
         m[i].height = WIDTH;
         m[i].width = HEIGHT;
@@ -67,7 +67,7 @@ int main(void) {
         pthread_create(&pthreads[i], NULL, brute_thread, &td[i]);
     }
 
-	for (int i = 0; i < THREADS; ++i)
+    for (int i = 0; i < THREADS; ++i)
         pthread_join(pthreads[i], NULL);
 
     return 0;

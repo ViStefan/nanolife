@@ -24,7 +24,6 @@ void *permutate_thread(void *t)
         td->callback(p);
         for (int i = 0; i < td->threads; ++i)
             next(p);
-
     } 
 
     return NULL;
@@ -45,7 +44,8 @@ void permutate(int number, int threads, void (*callback)(permutation_t *p))
         pthread_create(&pthreads[i], NULL, permutate_thread, &td[i]);
     }
 
-    for (int i = 0; i < threads; ++i) {
+    for (int i = 0; i < threads; ++i)
+    {
         pthread_join(pthreads[i], NULL);
         free_permutation(td[i].perm);
     }
