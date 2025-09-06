@@ -8,6 +8,7 @@ lookup_table_t *generate_table(map_t *m)
     lookup_table_t *table = malloc(sizeof(lookup_table_t));
     table->map = m;
     table->size = 1 << (m->width * m->height);
+    table->outcome_size = (m->width - 2) * (m->height - 2);
     table->table = malloc(sizeof(int) * table->size);
 
     for (size_t i = 0; i < table->size; ++i)

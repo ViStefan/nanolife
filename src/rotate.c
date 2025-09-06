@@ -8,7 +8,10 @@ int chunk[4] = {
 };
 
 int lookup_table[16] = {
-    0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3, 11, 7, 15
+    0, 8, 4, 12,
+    2, 10, 6, 14,
+    1, 9, 5, 13,
+    3, 11, 7, 15
 };
 
 void print_chunk(int *chunk, map_t *map)
@@ -17,9 +20,7 @@ void print_chunk(int *chunk, map_t *map)
     for (int i = 0; i < 4; ++i)
         in = (in << 4) | chunk[i];
 
-    pretty_print_chunk(in, 0, map);
-
-   
+    pretty_print_chunk_m(in, map);
 }
 
 int main(void)

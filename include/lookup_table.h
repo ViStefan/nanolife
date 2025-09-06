@@ -6,6 +6,7 @@
 
 typedef struct {
     size_t size;
+    size_t outcome_size;
     map_t *map;
     int *table;
 } lookup_table_t;
