@@ -51,28 +51,23 @@ void permutate(int number, int threads, void (*callback)(permutation_t *p))
     }
 }
 
-void usage(char **argv)
+void usage(char **argv, int status)
 {
-    printf("%s NUM\n", argv[0]);
-    printf("\tNUM - sane number of elements to permutate\n");
+    printf("usage: %s NUM\n", argv[0]);
+    printf("\tNUM\tsane number of elements to permutate\n");
+    exit(status);
 }
 
 int main(int argc, char **argv)
 {
     if (argc != 2)
-    {
-        usage(argv);
-        return 1;
-    }
+        usage(argv, 1);
 
     char *end;
     unsigned long num = strtoul(argv[1], &end, 10);
 
     if (*end != '\0' || errno == ERANGE)
-    {
-        usage(argv);
-        return 2;
-    }
+        usage(argv, 2);
 
     permutate(num, THREADS, &print);
 
