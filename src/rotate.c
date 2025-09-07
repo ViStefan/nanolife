@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <string.h>
 #include "pretty_print.h"
 #include "johnson_trotter.h"
@@ -39,6 +40,7 @@ int main(void)
         c2[i] = lookup_table[c2[i]];
 
     print_chunk(chunk, &map);
+    printf("\n");
     print_chunk(c2, &map);
 
     free_permutation(p);

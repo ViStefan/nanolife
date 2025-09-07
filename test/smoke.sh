@@ -42,5 +42,8 @@ assert "$(./brute_4x4 | wc -l)" "362880"
 echo Bruteforce uniqness 
 assert "$(./brute_4x4 | sort -h | uniq -d)" ""
 
+echo Generate lookup table
+assert "$(./gentab outcome 4x4 1,0,3,2,5,4,7,6,9,8,11,10,13,12,15,15 pretty 0 | sed -n 's/^monotonous outcome intervals: \(.*\)$/\1/p')" "35617"
+
 echo
 [ $FAILED -eq 0 ] && ok "No errors occurred" || fail "Some errors occured"
