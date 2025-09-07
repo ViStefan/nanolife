@@ -60,7 +60,7 @@ int main(int argc, char **argv)
 
     size_t width, height;
     char *end;
-    width = (size_t)strtoul(argv[2], &end, 10);
+    width = height = (size_t)strtoul(argv[2], &end, 10);
     if (errno == ERANGE)
         usage(argv, 3);
     if (*end == 'x')
@@ -69,10 +69,7 @@ int main(int argc, char **argv)
         if (errno == ERANGE || *end != '\0')
             usage(argv, 4);
     }
-    else if (*end == '\0')
-        height = width;
-    else
-        // TODO: linter warns uninitialized height
+    else if (*end != '\0')
         usage(argv, 5);
 
     int mapping[width * height];
@@ -98,7 +95,7 @@ int main(int argc, char **argv)
             usage(argv, 8);
     }
 
-    enum RENDER render;
+    enum RENDER render = PRETTY;
     if (!strcmp(argv[4], "pretty"))
         render = PRETTY;
     else if (!strcmp(argv[4], "dec"))
@@ -108,7 +105,6 @@ int main(int argc, char **argv)
     else if (!strcmp(argv[4], "bin"))
         render = BIN;
     else
-        // TODO: linter warns uninitialized render
         usage(argv, 9);
 
     size_t align = strtoul(argv[5], &end, 10);
@@ -142,6 +138,7 @@ int main(int argc, char **argv)
     if (render == PRETTY)
     {
         pretty_print_table(table);
+        // TODO: BUG: something overflows for 6x6 chunks with default mapping
         printf("monotonous outcome intervals: %zu\n", count_monotone(table));
     }
     else

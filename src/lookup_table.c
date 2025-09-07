@@ -11,6 +11,7 @@ lookup_table_t *generate_table(map_t *m)
     table->outcome_size = (m->width - 2) * (m->height - 2);
     table->table = malloc(sizeof(int) * table->size);
 
+    // TODO: pthread it!
     for (size_t i = 0; i < table->size; ++i)
         table->table[i] = life_chunk(i, m);
 

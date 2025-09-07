@@ -37,6 +37,7 @@ void print(permutation_t *p)
     free(buffer);
 }
 
+// TODO: move to utils
 char *serialize(permutation_t *p)
 {
     char *buffer = malloc(sequence_string_length(p->n));
