@@ -15,6 +15,7 @@ void putsquare(int color)
 void pretty_print_chunk(int in, map_t *m, bool outcome, int out, int outcome_size)
 {
     int out_width = m->width - 2;
+    outcome_size -= 1;
 
     for (int h = 0; h < m->height; ++h)
     {
