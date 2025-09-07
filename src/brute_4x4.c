@@ -21,9 +21,11 @@ void *brute_thread(void *t)
 {
     thread_data *td = ((thread_data *)t);
 
-    for (unsigned long long i = td->start; i <= td->stop; ++i)
+    for (unsigned long long i = td->start; i < td->stop; ++i)
     {
         td->m->value = td->p->value;
+        // TODO: here threading slows bruteforce down
+        // TODO: have to use thread pool
         lookup_table_t *table = generate_table(td->m);
         int c = count_monotone(table);
         char *s = serialize(td->p);
@@ -63,7 +65,7 @@ int main(void) {
         td[i].m = &m[i];
         td[i].p = p[i];
         td[i].start = i * chunk_size;
-        td[i].stop = (i == THREADS - 1) ? aligned_size - 1 : ((i + 1) * chunk_size - 1);
+        td[i].stop = (i == THREADS - 1) ? aligned_size : ((i + 1) * chunk_size);
         pthread_create(&pthreads[i], NULL, brute_thread, &td[i]);
     }
 

@@ -1,7 +1,27 @@
 #include <stdlib.h>
+#include <pthread.h>
 #include "lookup_table.h"
 #include "map.h"
 #include "life.h"
+
+#define THREADS 4
+
+typedef struct
+{
+    lookup_table_t *table;
+    unsigned long long start;
+    unsigned long long stop;
+} thread_data;
+
+void *generate_table_thread(void *t)
+{
+    thread_data *td = ((thread_data *)t);
+
+    for (unsigned long long i = td->start; i <= td->stop; ++i)
+        td->table->table[i] = life_chunk(i, td->table->map);
+
+    return NULL;
+}
 
 lookup_table_t *generate_table(map_t *m)
 {
@@ -11,9 +31,25 @@ lookup_table_t *generate_table(map_t *m)
     table->outcome_size = (m->width - 2) * (m->height - 2);
     table->table = malloc(sizeof(int) * table->size);
 
-    // TODO: pthread it!
-    for (size_t i = 0; i < table->size; ++i)
-        table->table[i] = life_chunk(i, m);
+    int chunk_size = table->size / THREADS;
+
+    pthread_t pthreads[THREADS];
+    thread_data td[THREADS];
+
+    for (int i = 0; i < THREADS; ++i)
+    {
+        td[i].table = table;
+        td[i].start = i * chunk_size;
+        td[i].stop = (i + 1) * chunk_size;
+    }
+
+    td[THREADS - 1].stop = table->size;
+
+    for (int i = 0; i < THREADS; ++i)
+        pthread_create(&pthreads[i], NULL, generate_table_thread, &td[i]);
+
+    for (int i = 0; i < THREADS; ++i)
+        pthread_join(pthreads[i], NULL);
 
     return table;
 }
