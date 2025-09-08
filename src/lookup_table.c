@@ -4,8 +4,6 @@
 #include "map.h"
 #include "life.h"
 
-#define THREADS 4
-
 typedef struct
 {
     lookup_table_t *table;
@@ -23,7 +21,7 @@ void *generate_table_thread(void *t)
     return NULL;
 }
 
-lookup_table_t *generate_table(map_t *m)
+lookup_table_t *generate_table(map_t *m, int threads)
 {
     lookup_table_t *table = malloc(sizeof(lookup_table_t));
     table->map = m;
@@ -31,25 +29,30 @@ lookup_table_t *generate_table(map_t *m)
     table->outcome_size = (m->width - 2) * (m->height - 2);
     table->table = malloc(sizeof(int) * table->size);
 
-    int chunk_size = table->size / THREADS;
+    int chunk_size = table->size / threads;
 
-    pthread_t pthreads[THREADS];
-    thread_data td[THREADS];
+    pthread_t pthreads[threads];
+    thread_data td[threads];
 
-    for (int i = 0; i < THREADS; ++i)
+    for (int i = 0; i < threads; ++i)
     {
         td[i].table = table;
         td[i].start = i * chunk_size;
         td[i].stop = (i + 1) * chunk_size;
     }
 
-    td[THREADS - 1].stop = table->size;
+    td[threads - 1].stop = table->size;
 
-    for (int i = 0; i < THREADS; ++i)
-        pthread_create(&pthreads[i], NULL, generate_table_thread, &td[i]);
+    if (threads > 1)
+    {
+        for (int i = 0; i < threads; ++i)
+            pthread_create(&pthreads[i], NULL, generate_table_thread, &td[i]);
 
-    for (int i = 0; i < THREADS; ++i)
-        pthread_join(pthreads[i], NULL);
+        for (int i = 0; i < threads; ++i)
+            pthread_join(pthreads[i], NULL);
+    }
+    else
+        generate_table_thread((void *)&td[0]);
 
     return table;
 }
@@ -60,7 +63,7 @@ void free_lookup_table(lookup_table_t *t)
     free(t);
 }
 
-size_t count_monotone(lookup_table_t *table)
+size_t count_monotone(lookup_table_t *table, size_t border)
 {
     int prev = table->table[0];
     size_t n = 1;
@@ -69,6 +72,8 @@ size_t count_monotone(lookup_table_t *table)
         {
             prev = table->table[i];
             ++n;
+            if (n > border)
+                return n;
         }
 
     return n;

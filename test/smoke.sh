@@ -41,11 +41,15 @@ echo Permutations uniqness
 assert "$(sort -h $TMP_FILE | uniq -d)" ""
 
 echo Bruteforce number
-./brute_4x4 > $TMP_FILE
+./brute_4x4 3x3 $(nproc) all > $TMP_FILE
 assert "$(wc -l --total=only $TMP_FILE)" "362880"
 
 echo Bruteforce uniqness 
 assert "$(sort -h $TMP_FILE | uniq -d)" ""
+
+echo Bruteforce result
+./brute_4x4 3x3 $(nproc) min > $TMP_FILE
+assert "$(tail -n 1 $TMP_FILE | cut -d' ' -f1)" "97"
 
 echo Generate lookup table
 assert "$(./gentab outcome 3x3 1,2,3,4,0,5,6,7,8 pretty 0 | sed -n 's/^monotonous outcome intervals: \(.*\)$/\1/p')" "97"

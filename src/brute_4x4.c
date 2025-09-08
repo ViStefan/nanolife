@@ -1,20 +1,37 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <limits.h>
+#include <errno.h>
+#include <string.h>
 #include "johnson_trotter.h"
 #include "lookup_table.h"
 #include "utils.h"
 
-// TODO: parametrize
-#define THREADS 8
-#define WIDTH 3
-#define HEIGHT 3
+enum AGGREGATION
+{
+    MIN,
+    ALL
+};
+
+void usage(char **argv, int status)
+{
+    printf("usage: %s SIZE THREADS\n", argv[0]);
+    printf("\tSIZE\tnumber 'N' or pair 'WxH' for square or rectangle correspondingly\n");
+    printf("\tTHREADS\tnumber of parallel threads\n");
+    exit(status);
+}
 
 typedef struct {
     map_t *m;
     permutation_t *p;
     unsigned long long start;
     unsigned long long stop;
+    int *minimum;
+    pthread_mutex_t *minimum_mutex;
+    int threads;
+    enum AGGREGATION aggr;
 } thread_data;
 
 void *brute_thread(void *t)
@@ -23,17 +40,29 @@ void *brute_thread(void *t)
 
     for (unsigned long long i = td->start; i < td->stop; ++i)
     {
+        bool should_print = false;
         td->m->value = td->p->value;
-        // TODO: here threading slows bruteforce down
-        // TODO: have to use thread pool
-        lookup_table_t *table = generate_table(td->m);
-        int c = count_monotone(table);
-        char *s = permutation_serialize(td->p);
-        printf("%d : %s\n", c, s);
-        free(s);
+        lookup_table_t *table = generate_table(td->m, 1);
+        int c = count_monotone(table, (size_t)td->minimum);
+        if (td->aggr == MIN)
+        {
+            pthread_mutex_lock(td->minimum_mutex);
+            if (c < *td->minimum)
+            {
+                *td->minimum = c;
+                should_print = true;
+            }
+            pthread_mutex_unlock(td->minimum_mutex);
+        }
+        if (should_print || td->aggr == ALL)
+        {
+            char *s = permutation_serialize(td->p);
+            printf("%d : %s\n", c, s);
+            free(s);
+        }
         free_lookup_table(table);
 
-        int status = permutation_next(td->p, THREADS);
+        int status = permutation_next(td->p, td->threads);
 
         if (status == PERMUTATION_OVERFLOW)
             break;
@@ -44,30 +73,73 @@ void *brute_thread(void *t)
     return NULL;
 }
 
-int main(void) {
-    const unsigned long long aligned_size = factorial(WIDTH * HEIGHT) + THREADS;
-    const unsigned long long chunk_size = aligned_size / THREADS;
+int bruteforce(int width, int height, int threads, enum AGGREGATION aggr) {
+    int result = INT_MAX;
 
-    pthread_t pthreads[THREADS];
-    thread_data td[THREADS];
-    map_t m[THREADS];
-    permutation_t *p[THREADS];
+    const unsigned long long aligned_size = factorial(width * height) + threads;
+    const unsigned long long chunk_size = aligned_size / threads;
 
-    for (int i = 0; i < THREADS; ++i)
+    pthread_t pthreads[threads];
+    thread_data td[threads];
+    map_t m[threads];
+    permutation_t *p[threads];
+
+    pthread_mutex_t minimum;
+    pthread_mutex_init(&minimum, NULL);
+
+    for (int i = 0; i < threads; ++i)
     {
-        m[i].height = WIDTH;
-        m[i].width = HEIGHT;
+        m[i].height = width;
+        m[i].width = height;
         p[i] = permutation_init(m[i].width * m[i].height);
         permutation_next(p[i], i);
         td[i].m = &m[i];
         td[i].p = p[i];
+        td[i].threads = threads;
+        td[i].aggr = aggr;
         td[i].start = i * chunk_size;
-        td[i].stop = (i == THREADS - 1) ? aligned_size : ((i + 1) * chunk_size);
+        td[i].stop = (i == threads - 1) ? aligned_size : ((i + 1) * chunk_size);
+        td[i].minimum = &result;
+        td[i].minimum_mutex = &minimum;
         pthread_create(&pthreads[i], NULL, brute_thread, &td[i]);
     }
 
-    for (int i = 0; i < THREADS; ++i)
+    for (int i = 0; i < threads; ++i)
         pthread_join(pthreads[i], NULL);
 
     return 0;
+}
+
+int main(int argc, char **argv)
+{
+    if (argc < 4)
+        usage(argv, 1);
+
+    int width, height;
+    char *end;
+    width = height = (size_t)strtoul(argv[1], &end, 10);
+    if (errno == ERANGE)
+        usage(argv, 2);
+    if (*end == 'x')
+    {
+        height = (size_t)strtoul(end + 1, &end, 10);
+        if (errno == ERANGE || *end != '\0')
+            usage(argv, 3);
+    }
+    else if (*end != '\0')
+        usage(argv, 4);
+
+    int threads = strtoul(argv[2], &end, 10);
+    if (errno == ERANGE || *end != '\0')
+        usage(argv, 5);
+
+    enum AGGREGATION aggr = MIN;
+    if (!strcmp(argv[3], "all"))
+        aggr = ALL;
+    else if (!strcmp(argv[3], "min"))
+        aggr = MIN;
+    else
+        usage(argv, 6);
+
+    bruteforce(width, height, threads, aggr);
 }

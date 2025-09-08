@@ -103,7 +103,7 @@ int permutation_next_impl(permutation_t *p)
 
 int permutation_next(permutation_t *p, int n)
 {
-    int status;
+    int status = 0;
     for (int i = 0; i < n; ++i)
         status = permutation_next_impl(p);
     return status;

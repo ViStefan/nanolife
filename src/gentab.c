@@ -1,3 +1,4 @@
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,6 +9,8 @@
 #include "map.h"
 #include "pretty_print.h"
 #include "utils.h"
+
+#define THREADS 4
 
 // TODO: move to lookup_table_t
 enum TYPE
@@ -43,7 +46,7 @@ void usage(char **argv, int status)
 
 int main(int argc, char **argv)
 {
-    if (argc < 5)
+    if (argc < 6)
         usage(argv, 1);
 
     enum TYPE type;
@@ -129,7 +132,7 @@ int main(int argc, char **argv)
     bool was_generated = false;
     if (type == OUTCOME)
     {
-        table = generate_table(&m);
+        table = generate_table(&m, THREADS);
         was_generated = true;
     }
     else
@@ -139,7 +142,7 @@ int main(int argc, char **argv)
     {
         pretty_print_table(table);
         // TODO: BUG: something overflows for 6x6 chunks with default mapping
-        printf("monotonous outcome intervals: %zu\n", count_monotone(table));
+        printf("monotonous outcome intervals: %zu\n", count_monotone(table, INT_MAX));
     }
     else
         usage(argv, 12);

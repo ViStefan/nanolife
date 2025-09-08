@@ -5,7 +5,7 @@ vpath %.c src
 INCLUDE += -I ./include
 CFLAGS += -Wall -Wextra -Werror -pedantic -std=c99 $(INCLUDE)
 
-all: brute_4x4 gentab permutate
+all: brute_4x4 gentab permutate rotate
 
 COMMON_FILES = johnson_trotter.c  map.c utils.c life.c pretty_print.c lookup_table.c
 BRUTE_FILES = 
