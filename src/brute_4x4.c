@@ -5,6 +5,7 @@
 #include <limits.h>
 #include <errno.h>
 #include <string.h>
+#include <unistd.h>
 #include "johnson_trotter.h"
 #include "lookup_table.h"
 #include "utils.h"
@@ -32,7 +33,28 @@ typedef struct {
     pthread_mutex_t *minimum_mutex;
     int threads;
     enum AGGREGATION aggr;
+    int *progress;
+    int max_progress;
 } thread_data;
+
+void *progress_thread(void *t)
+{
+    int prev = -1;
+    thread_data *td = ((thread_data *)t);
+
+    while (*td->progress < td->max_progress)
+    {
+        sleep(1);
+        int percent = *td->progress * 100 / td->max_progress; 
+        if (percent > prev)
+        {
+            fprintf(stderr, "%d%%\n", percent);
+            prev = percent;
+        }
+    }
+
+    return NULL;
+}
 
 void *brute_thread(void *t)
 {
@@ -61,6 +83,7 @@ void *brute_thread(void *t)
             free(s);
         }
         free_lookup_table(table);
+        *td->progress += 1;
 
         int status = permutation_next(td->p, td->threads);
 
@@ -75,6 +98,7 @@ void *brute_thread(void *t)
 
 int bruteforce(int width, int height, int threads, enum AGGREGATION aggr) {
     int result = INT_MAX;
+    int progress = 0;
 
     const unsigned long long aligned_size = factorial(width * height) + threads;
     const unsigned long long chunk_size = aligned_size / threads;
@@ -101,8 +125,14 @@ int bruteforce(int width, int height, int threads, enum AGGREGATION aggr) {
         td[i].stop = (i == threads - 1) ? aligned_size : ((i + 1) * chunk_size);
         td[i].minimum = &result;
         td[i].minimum_mutex = &minimum;
+        td[i].max_progress = aligned_size;
+        td[i].progress = &progress;
         pthread_create(&pthreads[i], NULL, brute_thread, &td[i]);
     }
+    
+    pthread_t progress_pt;
+    pthread_create(&progress_pt, NULL, progress_thread, &td[0]);
+    pthread_detach(progress_pt);
 
     for (int i = 0; i < threads; ++i)
         pthread_join(pthreads[i], NULL);
