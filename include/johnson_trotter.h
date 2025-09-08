@@ -9,8 +9,8 @@ typedef struct
     int *direction;
 } permutation_t;
 
-permutation_t *init(int n);
-void print(permutation_t *p);
-char *serialize(permutation_t *p);
-int next(permutation_t *p);
+permutation_t *permutation_init(int n);
+void permutation_print(permutation_t *p);
+char *permutation_serialize(permutation_t *p);
+int permutation_next(permutation_t *p, int n);
 void free_permutation(permutation_t *p);

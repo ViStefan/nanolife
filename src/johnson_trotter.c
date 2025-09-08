@@ -3,7 +3,7 @@
 #include "johnson_trotter.h"
 #include "utils.h"
 
-permutation_t *init(int n)
+permutation_t *permutation_init(int n)
 {
     permutation_t *p = malloc(sizeof(permutation_t));
 
@@ -30,15 +30,15 @@ void free_permutation(permutation_t *p)
     free(p);
 }
 
-void print(permutation_t *p)
+void permutation_print(permutation_t *p)
 {
-    char *buffer = serialize(p);
+    char *buffer = permutation_serialize(p);
     printf("%s\n", buffer);
     free(buffer);
 }
 
 // TODO: move to utils
-char *serialize(permutation_t *p)
+char *permutation_serialize(permutation_t *p)
 {
     char *buffer = malloc(sequence_string_length(p->n));
     char *c = buffer;
@@ -73,7 +73,7 @@ void swap(permutation_t *p, int n)
         p->direction[n + d] = 0;
 }
 
-int next(permutation_t *p)
+int permutation_next_impl(permutation_t *p)
 {
     p->step++;
     if (p->step > p->size)
@@ -99,4 +99,12 @@ int next(permutation_t *p)
             p->direction[i] = -1;
 
     return 0;
+}
+
+int permutation_next(permutation_t *p, int n)
+{
+    int status;
+    for (int i = 0; i < n; ++i)
+        status = permutation_next_impl(p);
+    return status;
 }

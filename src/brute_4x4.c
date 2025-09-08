@@ -28,14 +28,12 @@ void *brute_thread(void *t)
         // TODO: have to use thread pool
         lookup_table_t *table = generate_table(td->m);
         int c = count_monotone(table);
-        char *s = serialize(td->p);
+        char *s = permutation_serialize(td->p);
         printf("%d : %s\n", c, s);
         free(s);
         free_lookup_table(table);
 
-        int status;
-        for (int j = 0; j < THREADS; ++j)
-            status = next(td->p);
+        int status = permutation_next(td->p, THREADS);
 
         if (status == PERMUTATION_OVERFLOW)
             break;
@@ -59,9 +57,8 @@ int main(void) {
     {
         m[i].height = WIDTH;
         m[i].width = HEIGHT;
-        p[i] = init(m[i].width * m[i].height);
-        for (int j = 0; j < i; ++j)
-            next(p[i]);
+        p[i] = permutation_init(m[i].width * m[i].height);
+        permutation_next(p[i], i);
         td[i].m = &m[i];
         td[i].p = p[i];
         td[i].start = i * chunk_size;

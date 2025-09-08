@@ -26,7 +26,7 @@ void print_chunk(int *chunk, map_t *map)
 
 int main(void)
 {
-    permutation_t *p = init(16);
+    permutation_t *p = permutation_init(16);
     map_t map;
     map.width = 4;
     map.height = 4;

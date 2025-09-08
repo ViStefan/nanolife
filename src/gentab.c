@@ -116,10 +116,10 @@ int main(int argc, char **argv)
     m.height = height;
     m.value = mapping;
 
-    permutation_t *p = init(width * height);
+    permutation_t *p = permutation_init(width * height);
     free(p->value);
     p->value = mapping;
-    char *mapping_str = serialize(p);
+    char *mapping_str = permutation_serialize(p);
     free(p);
 
     printf("attempt to print table of type %d of size %zux%zu with mapping (%s), render %d and align %zu\n",

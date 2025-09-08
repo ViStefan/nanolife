@@ -22,8 +22,7 @@ void *permutate_thread(void *t)
     while (p->step <= p->size)
     {
         td->callback(p);
-        for (int i = 0; i < td->threads; ++i)
-            next(p);
+        permutation_next(p, td->threads);
     } 
 
     return NULL;
@@ -38,9 +37,8 @@ void permutate(int number, int threads, void (*callback)(permutation_t *p))
     {
         td[i].callback = callback;
         td[i].threads = threads;
-        td[i].perm = init(number);
-        for (int j = 0; j < i; ++j)
-            next(td[i].perm);
+        td[i].perm = permutation_init(number);
+        permutation_next(td[i].perm, i);
         pthread_create(&pthreads[i], NULL, permutate_thread, &td[i]);
     }
 
@@ -69,7 +67,7 @@ int main(int argc, char **argv)
     if (*end != '\0' || errno == ERANGE)
         usage(argv, 2);
 
-    permutate(num, THREADS, &print);
+    permutate(num, THREADS, &permutation_print);
 
     return 0;
 }
