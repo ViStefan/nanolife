@@ -10,6 +10,8 @@
 #include "lookup_table.h"
 #include "utils.h"
 
+#define SLEEP 10
+
 enum AGGREGATION
 {
     MIN,
@@ -21,6 +23,7 @@ void usage(char **argv, int status)
     printf("usage: %s SIZE THREADS\n", argv[0]);
     printf("\tSIZE\tnumber 'N' or pair 'WxH' for square or rectangle correspondingly\n");
     printf("\tTHREADS\tnumber of parallel threads\n");
+    printf("\tAGGREGATION\tsupject to print, one of min|all\n");
     exit(status);
 }
 
@@ -33,24 +36,26 @@ typedef struct {
     pthread_mutex_t *minimum_mutex;
     int threads;
     enum AGGREGATION aggr;
-    int *progress;
-    int max_progress;
+    unsigned long long *progress;
+    unsigned long long max_progress;
 } thread_data;
 
 void *progress_thread(void *t)
 {
-    int prev = -1;
+    int prev = 1;
     thread_data *td = ((thread_data *)t);
 
     while (*td->progress < td->max_progress)
     {
-        sleep(1);
-        int percent = *td->progress * 100 / td->max_progress; 
-        if (percent > prev)
-        {
-            fprintf(stderr, "%d%%\n", percent);
-            prev = percent;
-        }
+        sleep(SLEEP);
+        int percent = *td->progress * 100 / td->max_progress;
+        int speed = (*td->progress - prev) / SLEEP;
+        int approx = (td->max_progress - *td->progress) / speed;
+        int sec = approx % 60;
+        int min = (approx / 60) % 60;
+        int hour = (approx / 3600);
+        fprintf(stderr, "%d%%, %dh %dmin %ds left\n", percent, hour, min, sec);
+        prev = *td->progress;
     }
 
     return NULL;
@@ -98,9 +103,10 @@ void *brute_thread(void *t)
 
 int bruteforce(int width, int height, int threads, enum AGGREGATION aggr) {
     int result = INT_MAX;
-    int progress = 0;
+    unsigned long long progress = 0;
 
     const unsigned long long aligned_size = factorial(width * height) + threads;
+    printf("aligned size: %llu\n", aligned_size);
     const unsigned long long chunk_size = aligned_size / threads;
 
     pthread_t pthreads[threads];

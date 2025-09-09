@@ -10,8 +10,6 @@
 #include "pretty_print.h"
 #include "utils.h"
 
-#define THREADS 4
-
 // TODO: move to lookup_table_t
 enum TYPE
 {
@@ -31,7 +29,7 @@ enum RENDER
 
 void usage(char **argv, int status)
 {
-    printf("usage: %s TYPE SIZE MAPPING RENDER ALIGN\n", argv[0]);
+    printf("usage: %s TYPE SIZE MAPPING RENDER ALIGN THREADS\n", argv[0]);
     printf("\tTYPE\tlookup table type: outcome|neighbour|frequency|rotate\n");
     printf("\t\toutcome\t\tlife b3s23 outcomes in array\n");
     printf("\t\tneighbour\tarray of arrays of neighbourhoods leading to particular outcomes\n");
@@ -41,12 +39,13 @@ void usage(char **argv, int status)
     printf("\tMAPPING\tenumeration of cells in matrix in form '0,1,2,3,...,n-1' in arbitrary order or 'default' for sequential\n");
     printf("\tRENDER\trender type: pretty|dec|hex|bin\n");
     printf("\tALIGN\tnumber 'N', alignment in bits for table chunk, ignored if render type is pretty\n");
+    printf("\tTHREADS\tnumber of parallel threads\n");
     exit(status);
 }
 
 int main(int argc, char **argv)
 {
-    if (argc < 6)
+    if (argc < 7)
         usage(argv, 1);
 
     enum TYPE type;
@@ -114,6 +113,10 @@ int main(int argc, char **argv)
     if (errno == ERANGE || *end != '\0')
         usage(argv, 10);
 
+    size_t threads = strtoul(argv[6], &end, 10);
+    if (errno == ERANGE || *end != '\0')
+        usage(argv, 11);
+
     map_t m;
     m.width = width;
     m.height = height;
@@ -132,7 +135,7 @@ int main(int argc, char **argv)
     bool was_generated = false;
     if (type == OUTCOME)
     {
-        table = generate_table(&m, THREADS);
+        table = generate_table(&m, threads);
         was_generated = true;
     }
     else

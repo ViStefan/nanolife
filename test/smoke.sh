@@ -52,9 +52,9 @@ echo Bruteforce result
 assert "$(tail -n 1 $TMP_FILE | cut -d' ' -f1)" "97"
 
 echo Generate lookup table
-assert "$(./gentab outcome 3x3 1,2,3,4,0,5,6,7,8 pretty 0 | sed -n 's/^monotonous outcome intervals: \(.*\)$/\1/p')" "97"
-assert "$(./gentab outcome 3x4 default pretty 0 | sed -n 's/^monotonous outcome intervals: \(.*\)$/\1/p')" "1332"
-assert "$(./gentab outcome 4x4 1,0,3,2,5,4,7,6,9,8,11,10,13,12,15,15 pretty 0 | sed -n 's/^monotonous outcome intervals: \(.*\)$/\1/p')" "35617"
+assert "$(./gentab outcome 3x3 1,2,3,4,0,5,6,7,8 pretty 0 $(nproc) | sed -n 's/^monotonous outcome intervals: \(.*\)$/\1/p')" "97"
+assert "$(./gentab outcome 3x4 default pretty 0 $(nproc) | sed -n 's/^monotonous outcome intervals: \(.*\)$/\1/p')" "1332"
+assert "$(./gentab outcome 4x4 1,0,3,2,5,4,7,6,9,8,11,10,13,12,15,15 pretty 0 $(nproc) | sed -n 's/^monotonous outcome intervals: \(.*\)$/\1/p')" "35617"
 
 echo
 [ $FAILED -eq 0 ] && ok "No errors occurred" || fail "Some errors occured"
