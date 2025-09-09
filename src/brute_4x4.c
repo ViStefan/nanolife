@@ -42,20 +42,20 @@ typedef struct {
 
 void *progress_thread(void *t)
 {
-    int prev = 1;
+    int time = 0;
     thread_data *td = ((thread_data *)t);
 
     while (*td->progress < td->max_progress)
     {
         sleep(SLEEP);
+        ++time;
         int percent = *td->progress * 100 / td->max_progress;
-        int speed = (*td->progress - prev) / SLEEP;
+        int speed = *td->progress / (time * SLEEP);
         int approx = (td->max_progress - *td->progress) / speed;
         int sec = approx % 60;
         int min = (approx / 60) % 60;
         int hour = (approx / 3600);
         fprintf(stderr, "%d%%, %dh %dmin %ds left\n", percent, hour, min, sec);
-        prev = *td->progress;
     }
 
     return NULL;
