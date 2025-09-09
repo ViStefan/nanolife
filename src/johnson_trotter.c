@@ -37,16 +37,9 @@ void permutation_print(permutation_t *p)
     free(buffer);
 }
 
-// TODO: move to utils
 char *permutation_serialize(permutation_t *p)
 {
-    char *buffer = malloc(sequence_string_length(p->n));
-    char *c = buffer;
-
-    c += sprintf(c, "%d", p->value[0]);
-    for (int i = 1; i < p->n; ++i)
-        c += sprintf(c, ", %d", p->value[i]);
-    return buffer;
+    return serialize_sequence(p->value, p->n);
 }
 
 void swap(permutation_t *p, int n)

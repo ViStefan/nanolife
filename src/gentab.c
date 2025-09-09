@@ -1,9 +1,6 @@
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
-// TODO: included only for serialization of array
-#include "johnson_trotter.h"
-#include "lookup_table.h"
 #include "map.h"
 #include "pretty_print.h"
 #include "utils.h"
@@ -56,14 +53,12 @@ int main(int argc, char **argv)
     m.height = height;
     m.value = mapping;
 
-    permutation_t *p = permutation_init(width * height);
-    free(p->value);
-    p->value = mapping;
-    char *mapping_str = permutation_serialize(p);
-    free(p);
+    char *mapping_str = serialize_sequence(mapping, width * height);
 
     printf("attempt to print table of type %d of size %dx%d with mapping (%s), render %d and align %d in %d threads\n",
         type, width, height, mapping_str, render, align, threads);
+
+    free(mapping_str);
 
     lookup_table_t *table;
     bool was_generated = false;

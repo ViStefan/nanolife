@@ -3,19 +3,15 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <limits.h>
-#include <string.h>
 #include <unistd.h>
 #include "johnson_trotter.h"
 #include "lookup_table.h"
 #include "utils.h"
 #include "args.h"
 
-#define SLEEP 10
-
 #define AGGREGATION(F) \
     F(MIN), \
     F(ALL)
-
 
 ENUM(AGGREGATION)
 
@@ -38,25 +34,35 @@ typedef struct {
     int threads;
     enum AGGREGATION aggr;
     unsigned long long *progress;
-    unsigned long long max_progress;
 } thread_data;
+
+typedef struct {
+    int sleep;
+    unsigned long long *progress;
+    unsigned long long max_progress;
+} progress_data;
 
 void *progress_thread(void *t)
 {
     int time = 0;
-    thread_data *td = ((thread_data *)t);
+    progress_data *pd = ((progress_data*)t);
 
-    while (*td->progress < td->max_progress)
+    while (*pd->progress < pd->max_progress)
     {
-        sleep(SLEEP);
+        sleep(pd->sleep);
         ++time;
-        int percent = *td->progress * 100 / td->max_progress;
-        int speed = *td->progress / (time * SLEEP);
-        int approx = (td->max_progress - *td->progress) / speed;
+        int percent = *pd->progress * 100 / pd->max_progress;
+        int speed = *pd->progress / (time * pd->sleep);
+        int approx = (pd->max_progress - *pd->progress) / speed;
         int sec = approx % 60;
-        int min = (approx / 60) % 60;
-        int hour = (approx / 3600);
-        fprintf(stderr, "%d%%, %dh %dmin %ds left\n", percent, hour, min, sec);
+        int min = (approx /= 60) % 60;
+        int hour = (approx /= 60);
+        if (hour != 0)
+            fprintf(stderr, "%d%%, %dh %dmin %ds left\n", percent, hour, min, sec);
+        else if (min != 0)
+            fprintf(stderr, "%d%%, %dmin %ds left\n", percent, min, sec);
+        else
+            fprintf(stderr, "%d%%, %ds left\n", percent, sec);
     }
 
     return NULL;
@@ -103,7 +109,7 @@ void *brute_thread(void *t)
 }
 
 int bruteforce(int width, int height, int threads, enum AGGREGATION aggr) {
-    int result = INT_MAX;
+    int minimum = INT_MAX;
     unsigned long long progress = 0;
 
     const unsigned long long aligned_size = factorial(width * height) + threads;
@@ -114,30 +120,39 @@ int bruteforce(int width, int height, int threads, enum AGGREGATION aggr) {
     map_t m[threads];
     permutation_t *p[threads];
 
-    pthread_mutex_t minimum;
-    pthread_mutex_init(&minimum, NULL);
+    pthread_mutex_t minimum_mutex;
+    pthread_mutex_init(&minimum_mutex, NULL);
 
     for (int i = 0; i < threads; ++i)
     {
         m[i].height = width;
         m[i].width = height;
+        td[i].m = &m[i];
+
         p[i] = permutation_init(m[i].width * m[i].height);
         permutation_next(p[i], i);
-        td[i].m = &m[i];
         td[i].p = p[i];
+
         td[i].threads = threads;
-        td[i].aggr = aggr;
         td[i].start = i * chunk_size;
         td[i].stop = (i == threads - 1) ? aligned_size : ((i + 1) * chunk_size);
-        td[i].minimum = &result;
-        td[i].minimum_mutex = &minimum;
-        td[i].max_progress = aligned_size;
+
+        td[i].aggr = aggr;
+        td[i].minimum = &minimum;
+        td[i].minimum_mutex = &minimum_mutex;
+
         td[i].progress = &progress;
+
         pthread_create(&pthreads[i], NULL, brute_thread, &td[i]);
     }
     
     pthread_t progress_pt;
-    pthread_create(&progress_pt, NULL, progress_thread, &td[0]);
+    progress_data pd;
+    pd.max_progress = aligned_size;
+    pd.progress = &progress;
+    pd.sleep = (aligned_size < 1000000) ? 1 : 10;
+
+    pthread_create(&progress_pt, NULL, progress_thread, &pd);
     pthread_detach(progress_pt);
 
     for (int i = 0; i < threads; ++i)
