@@ -12,6 +12,15 @@ BRUTE_FILES =
 GENTAB_FILES = 
 PERMUTATE_FILES =
 ROTATE_FILES =
+
+debug: CFLAGS += -g
+debug: clean all
+
+fast: CFLAGS += -O3 -Ofast
+fast: clean all
+
+profile: CFLAGS += -g -pg
+profile: clean all
  
 brute_4x4: $(BRUTE_FILES) $(COMMON_FILES)
 
