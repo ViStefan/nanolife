@@ -22,9 +22,9 @@
 ENUM(TYPE)
 ENUM(RENDER)
 
-void usage(char **argv, int status)
+void usage(char *name)
 {
-    printf("usage: %s TYPE SIZE MAPPING RENDER ALIGN THREADS\n", argv[0]);
+    printf("usage: %s TYPE SIZE MAPPING RENDER ALIGN THREADS\n", name);
     printf("\tTYPE\tlookup table type: OUTCOME|NEIGHBOUR|FREQUENCY|ROTATE\n");
     printf("\t\toutcome\t\tlife b3s23 outcomes in array\n");
     printf("\t\tneighbour\tarray of arrays of neighbourhoods leading to particular outcomes\n");
@@ -35,7 +35,6 @@ void usage(char **argv, int status)
     printf("\tRENDER\trender type: PRETTY|DEC|HEX|BIN\n");
     printf("\tALIGN\tnumber 'N', alignment in bits for table chunk, ignored if render type is pretty\n");
     printf("\tTHREADS\tnumber of parallel threads\n");
-    exit(status);
 }
 
 int main(int argc, char **argv)
@@ -68,7 +67,7 @@ int main(int argc, char **argv)
         was_generated = true;
     }
     else
-        usage(argv, 11);
+        USAGE
 
     if (render == PRETTY)
     {
@@ -77,7 +76,7 @@ int main(int argc, char **argv)
         printf("monotonous outcome intervals: %zu\n", count_monotone(table, INT_MAX));
     }
     else
-        usage(argv, 12);
+        USAGE
 
     if (was_generated)
         free_lookup_table(table);

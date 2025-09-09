@@ -15,13 +15,12 @@
 
 ENUM(AGGREGATION)
 
-void usage(char **argv, int status)
+void usage(char *name)
 {
-    printf("usage: %s SIZE THREADS AGGREGATION\n", argv[0]);
+    printf("usage: %s SIZE THREADS AGGREGATION\n", name);
     printf("\tSIZE\tnumber 'N' or pair 'WxH' for square or rectangle correspondingly\n");
     printf("\tTHREADS\tnumber of parallel threads\n");
     printf("\tAGGREGATION\tsupject to print, one of MIN|ALL\n");
-    exit(status);
 }
 
 typedef struct {

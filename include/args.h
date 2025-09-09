@@ -1,5 +1,8 @@
 #define USAGE \
-    usage(__ARGV__, __ARG__ + 1); \
+    { \
+        usage(__ARGV__[0]); \
+        exit(__ARG__ + 1); \
+    }
 
 #define ARGS_INIT(argc, argv, n) \
     int __ARG__ = 0; \
@@ -20,27 +23,26 @@
         USAGE \
     ++__ARG__;
 
-#define STR(x) #x
-#define EQ(x) x
-#define EVAL(x) (x)
+#define __ARG_STR(x) #x
+#define __ARG_EQ(x) x
 
 #define ENUM(NAME) \
-    enum NAME\
+    enum NAME \
     { \
-        NAME(EQ) \
+        NAME(__ARG_EQ) \
     };
 
 #define PARSE_ENUM(TYPE, name) \
     enum TYPE name; \
-    if (parse_enum(__ARGV__[__ARG__], (int *)&name, TYPE(STR), NULL)) \
+    if (parse_enum(__ARGV__[__ARG__], (int *)&name, TYPE(__ARG_STR), NULL)) \
         USAGE \
     ++__ARG__;
 
 #define PARSE_ARRAY(name, size) \
-int name[size]; \
-if (parse_array(__ARGV__[__ARG__], size, (int *)&name)) \
-    USAGE \
-++__ARG__;
+    int name[size]; \
+    if (parse_array(__ARGV__[__ARG__], size, (int *)&name)) \
+        USAGE \
+    ++__ARG__;
     
 int parse_pair(char *arg, unsigned int *left, unsigned int *right);
 int parse_uint(char *arg, unsigned int *n);
