@@ -75,6 +75,10 @@ int main(int argc, char **argv)
         // TODO: BUG: something overflows for 6x6 chunks with default mapping
         printf("monotonous outcome intervals: %zu\n", count_monotone(table, INT_MAX));
     }
+    else if (render == DEC || render == HEX || render == BIN)
+    {
+        print_as_code(table);
+    }
     else
         USAGE
 

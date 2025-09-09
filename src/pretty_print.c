@@ -1,8 +1,10 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "pretty_print.h"
 #include "life.h"
 #include "lookup_table.h"
-#include <stdbool.h>
+#include "utils.h"
 
 void putsquare(int color)
 {
@@ -71,3 +73,16 @@ void pretty_print_table(lookup_table_t *table)
         pretty_print_chunk(i, table->map, true, table->table[i], table->outcome_size);
     }
 }
+
+void print_as_code(lookup_table_t *table)
+{
+    const char* preamble =
+"int lookup_table[%d] = {\n\
+%s \
+};\n";
+
+    char *table_string_buffer = serialize_array(table->table, table->size, table->outcome_size, 8, 1);
+    printf(preamble, table->size, table_string_buffer);
+    free(table_string_buffer);
+}
+

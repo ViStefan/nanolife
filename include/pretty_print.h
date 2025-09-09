@@ -10,3 +10,4 @@ void pretty_print_chunk_out_m(int in, int out, map_t *m);
 void pretty_print_chunk_m(int in, map_t *m);
 void pretty_print_chunk_out_l(int in, int out, lookup_table_t *lt);
 void pretty_print_chunk_l(int in, lookup_table_t *lt);
+void print_as_code(lookup_table_t *lt);
