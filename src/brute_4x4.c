@@ -3,27 +3,28 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <limits.h>
-#include <errno.h>
 #include <string.h>
 #include <unistd.h>
 #include "johnson_trotter.h"
 #include "lookup_table.h"
 #include "utils.h"
+#include "args.h"
 
 #define SLEEP 10
 
-enum AGGREGATION
-{
-    MIN,
-    ALL
-};
+#define AGGREGATION(F) \
+    F(MIN), \
+    F(ALL)
+
+
+ENUM(AGGREGATION)
 
 void usage(char **argv, int status)
 {
-    printf("usage: %s SIZE THREADS\n", argv[0]);
+    printf("usage: %s SIZE THREADS AGGREGATION\n", argv[0]);
     printf("\tSIZE\tnumber 'N' or pair 'WxH' for square or rectangle correspondingly\n");
     printf("\tTHREADS\tnumber of parallel threads\n");
-    printf("\tAGGREGATION\tsupject to print, one of min|all\n");
+    printf("\tAGGREGATION\tsupject to print, one of MIN|ALL\n");
     exit(status);
 }
 
@@ -106,7 +107,6 @@ int bruteforce(int width, int height, int threads, enum AGGREGATION aggr) {
     unsigned long long progress = 0;
 
     const unsigned long long aligned_size = factorial(width * height) + threads;
-    printf("aligned size: %llu\n", aligned_size);
     const unsigned long long chunk_size = aligned_size / threads;
 
     pthread_t pthreads[threads];
@@ -148,34 +148,10 @@ int bruteforce(int width, int height, int threads, enum AGGREGATION aggr) {
 
 int main(int argc, char **argv)
 {
-    if (argc < 4)
-        usage(argv, 1);
-
-    int width, height;
-    char *end;
-    width = height = (size_t)strtoul(argv[1], &end, 10);
-    if (errno == ERANGE)
-        usage(argv, 2);
-    if (*end == 'x')
-    {
-        height = (size_t)strtoul(end + 1, &end, 10);
-        if (errno == ERANGE || *end != '\0')
-            usage(argv, 3);
-    }
-    else if (*end != '\0')
-        usage(argv, 4);
-
-    int threads = strtoul(argv[2], &end, 10);
-    if (errno == ERANGE || *end != '\0')
-        usage(argv, 5);
-
-    enum AGGREGATION aggr = MIN;
-    if (!strcmp(argv[3], "all"))
-        aggr = ALL;
-    else if (!strcmp(argv[3], "min"))
-        aggr = MIN;
-    else
-        usage(argv, 6);
+    ARGS_INIT(argc, argv, 3)
+    PARSE_PAIR(width, height)
+    PARSE_UINT(threads)
+    PARSE_ENUM(AGGREGATION, aggr)
 
     bruteforce(width, height, threads, aggr);
 }

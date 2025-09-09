@@ -41,20 +41,20 @@ echo Permutations uniqness
 assert "$(sort -h $TMP_FILE | uniq -d)" ""
 
 echo Bruteforce number
-./brute_4x4 3x3 $(nproc) all > $TMP_FILE
+./brute_4x4 3x3 $(nproc) ALL > $TMP_FILE
 assert "$(wc -l --total=only $TMP_FILE)" "362880"
 
 echo Bruteforce uniqness 
 assert "$(sort -h $TMP_FILE | uniq -d)" ""
 
 echo Bruteforce result
-./brute_4x4 3x3 $(nproc) min > $TMP_FILE
+./brute_4x4 3x3 $(nproc) MIN > $TMP_FILE
 assert "$(tail -n 1 $TMP_FILE | cut -d' ' -f1)" "97"
 
 echo Generate lookup table
-assert "$(./gentab outcome 3x3 1,2,3,4,0,5,6,7,8 pretty 0 $(nproc) | sed -n 's/^monotonous outcome intervals: \(.*\)$/\1/p')" "97"
-assert "$(./gentab outcome 3x4 default pretty 0 $(nproc) | sed -n 's/^monotonous outcome intervals: \(.*\)$/\1/p')" "1332"
-assert "$(./gentab outcome 4x4 1,0,3,2,5,4,7,6,9,8,11,10,13,12,15,15 pretty 0 $(nproc) | sed -n 's/^monotonous outcome intervals: \(.*\)$/\1/p')" "35617"
+assert "$(./gentab OUTCOME 3x3 1,2,3,4,0,5,6,7,8 PRETTY 0 $(nproc) | sed -n 's/^monotonous outcome intervals: \(.*\)$/\1/p')" "97"
+assert "$(./gentab OUTCOME 3x4 DEFAULT PRETTY 0 $(nproc) | sed -n 's/^monotonous outcome intervals: \(.*\)$/\1/p')" "1332"
+assert "$(./gentab OUTCOME 4x4 1,0,3,2,5,4,7,6,9,8,11,10,13,12,15,15 PRETTY 0 $(nproc) | sed -n 's/^monotonous outcome intervals: \(.*\)$/\1/p')" "35617"
 
 echo
 [ $FAILED -eq 0 ] && ok "No errors occurred" || fail "Some errors occured"

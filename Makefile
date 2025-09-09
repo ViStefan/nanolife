@@ -7,7 +7,7 @@ CFLAGS += -Wall -Wextra -Werror -pedantic -std=c99 $(INCLUDE)
 
 all: brute_4x4 gentab permutate rotate
 
-COMMON_FILES = johnson_trotter.c  map.c utils.c life.c pretty_print.c lookup_table.c
+COMMON_FILES = johnson_trotter.c  map.c utils.c life.c pretty_print.c lookup_table.c args.c
 BRUTE_FILES = 
 GENTAB_FILES = 
 PERMUTATE_FILES =
