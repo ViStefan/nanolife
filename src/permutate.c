@@ -4,7 +4,7 @@
 #include <pthread.h>
 #include "johnson_trotter.h"
 
-#define THREADS 8
+#define THREADS 4
 
 typedef struct
 {

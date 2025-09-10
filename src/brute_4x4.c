@@ -75,10 +75,6 @@ void *brute_thread(void *t)
     for (unsigned long long i = td->start; i < td->stop; ++i)
     {
         bool should_print = false;
-        // TODO: is it necessary?
-        // TODO: should move default initialization to map?
-        // TODO: how to continue permutation if broke? store step number?
-        td->m->value = td->p->value;
         map_init_blocks(td->m);
         lookup_table_t *table = generate_table(td->m, 1, td->normal);
         int c = count_monotone(table, (size_t)td->minimum);
@@ -99,7 +95,6 @@ void *brute_thread(void *t)
             free(s);
         }
         free_lookup_table(table);
-        map_free_blocks(td->m);
         *td->progress += 1;
 
         int status = permutation_next(td->p, td->threads);
@@ -109,6 +104,7 @@ void *brute_thread(void *t)
     }
 
     free_permutation(td->p);
+    map_free_blocks(td->m);
 
     return NULL;
 }
@@ -138,13 +134,19 @@ int bruteforce(int width, int height, int threads, enum AGGREGATION aggr) {
 
     for (int i = 0; i < threads; ++i)
     {
-        m[i].height = width;
-        m[i].width = height;
-        td[i].m = &m[i];
-
-        p[i] = permutation_init(m[i].width * m[i].height);
+        p[i] = permutation_init(width * height);
         permutation_next(p[i], i);
         td[i].p = p[i];
+
+        // TODO: should move default initialization to map?
+        // TODO: how to continue permutation if broke? store step number?
+        m[i].height = width;
+        m[i].width = height;
+        m[i].value = p[i]->value;
+        m[i].size = width * height;
+        m[i].block_start = malloc(sizeof(int) * width * height);
+        m[i].block_size = malloc(sizeof(int) * width * height);
+        td[i].m = &m[i];
 
         td[i].normal = normal;
 
@@ -171,10 +173,7 @@ int bruteforce(int width, int height, int threads, enum AGGREGATION aggr) {
     pthread_detach(progress_pt);
 
     for (int i = 0; i < threads; ++i)
-    {
         pthread_join(pthreads[i], NULL);
-        free_permutation(p[i]);
-    }
 
     free_lookup_table(normal);
 

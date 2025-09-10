@@ -1,5 +1,5 @@
-#include "map.h"
 #include <stdlib.h>
+#include "map.h"
 
 inline int getbit(int bits, int x, int y, map_t *m)
 {
@@ -18,21 +18,15 @@ int normalize_bits(int bits, map_t *m)
 
 void map_init_blocks(map_t *m)
 {
-    int size = m->width * m->height;
-    int *block_start = malloc(sizeof(int) * size);
-    int *block_size = malloc(sizeof(int) * size);
-
     int blocks = 0;
-    for (int i = 0; i < size; ++i)
+    for (int i = 0; i < m->size; ++i)
     {
         int start = i;
-        block_start[blocks] = start;
-        while (i < size && m->value[i] == m->value[i + 1] - 1) i++;
-        block_size[blocks++] = i - start + 1;
+        m->block_start[blocks] = start;
+        while (i < m->size && m->value[i] == m->value[i + 1] - 1) i++;
+        m->block_size[blocks++] = i - start + 1;
     }
     
-    m->block_start = block_start;
-    m->block_size = block_size;
     m->blocks = blocks;
 }
 
