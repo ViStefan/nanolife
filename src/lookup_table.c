@@ -7,6 +7,7 @@
 typedef struct
 {
     lookup_table_t *table;
+    lookup_table_t *normal;
     unsigned long long start;
     unsigned long long stop;
 } thread_data;
@@ -15,13 +16,17 @@ void *generate_table_thread(void *t)
 {
     thread_data *td = ((thread_data *)t);
 
-    for (unsigned long long i = td->start; i <= td->stop; ++i)
-        td->table->table[i] = life_chunk(i, td->table->map);
+    if (td->normal == NULL)
+        for (unsigned long long i = td->start; i <= td->stop; ++i)
+            td->table->table[i] = life_chunk(i, td->table->map);
+    else
+        for (unsigned long long i = td->start; i < td->stop; ++i)
+            td->table->table[i] = td->normal->table[normalize_bits(i, td->table->map)];
 
     return NULL;
 }
 
-lookup_table_t *generate_table(map_t *m, int threads)
+lookup_table_t *generate_table(map_t *m, int threads, lookup_table_t *normal)
 {
     lookup_table_t *table = malloc(sizeof(lookup_table_t));
     table->map = m;
@@ -37,6 +42,7 @@ lookup_table_t *generate_table(map_t *m, int threads)
     for (int i = 0; i < threads; ++i)
     {
         td[i].table = table;
+        td[i].normal = normal;
         td[i].start = i * chunk_size;
         td[i].stop = (i + 1) * chunk_size;
     }

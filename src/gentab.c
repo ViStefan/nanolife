@@ -63,7 +63,7 @@ int main(int argc, char **argv)
     bool was_generated = false;
     if (type == OUTCOME)
     {
-        table = generate_table(&m, threads);
+        table = generate_table(&m, threads, NULL);
         was_generated = true;
     }
     else

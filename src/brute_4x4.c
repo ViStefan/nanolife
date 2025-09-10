@@ -26,6 +26,7 @@ void usage(char *name)
 typedef struct {
     map_t *m;
     permutation_t *p;
+    lookup_table_t *normal;
     unsigned long long start;
     unsigned long long stop;
     int *minimum;
@@ -74,8 +75,12 @@ void *brute_thread(void *t)
     for (unsigned long long i = td->start; i < td->stop; ++i)
     {
         bool should_print = false;
+        // TODO: is it necessary?
+        // TODO: should move default initialization to map?
+        // TODO: how to continue permutation if broke? store step number?
         td->m->value = td->p->value;
-        lookup_table_t *table = generate_table(td->m, 1);
+        map_init_blocks(td->m);
+        lookup_table_t *table = generate_table(td->m, 1, td->normal);
         int c = count_monotone(table, (size_t)td->minimum);
         if (td->aggr == MIN)
         {
@@ -94,6 +99,7 @@ void *brute_thread(void *t)
             free(s);
         }
         free_lookup_table(table);
+        map_free_blocks(td->m);
         *td->progress += 1;
 
         int status = permutation_next(td->p, td->threads);
@@ -122,6 +128,14 @@ int bruteforce(int width, int height, int threads, enum AGGREGATION aggr) {
     pthread_mutex_t minimum_mutex;
     pthread_mutex_init(&minimum_mutex, NULL);
 
+    map_t normal_map;
+    normal_map.width = width;
+    normal_map.height = height;
+    permutation_t *normal_permutation = permutation_init(normal_map.width * normal_map.height);
+    normal_map.value = normal_permutation->value;
+
+    lookup_table_t *normal = generate_table(&normal_map, threads, NULL);
+
     for (int i = 0; i < threads; ++i)
     {
         m[i].height = width;
@@ -131,6 +145,8 @@ int bruteforce(int width, int height, int threads, enum AGGREGATION aggr) {
         p[i] = permutation_init(m[i].width * m[i].height);
         permutation_next(p[i], i);
         td[i].p = p[i];
+
+        td[i].normal = normal;
 
         td[i].threads = threads;
         td[i].start = i * chunk_size;
@@ -155,7 +171,12 @@ int bruteforce(int width, int height, int threads, enum AGGREGATION aggr) {
     pthread_detach(progress_pt);
 
     for (int i = 0; i < threads; ++i)
+    {
         pthread_join(pthreads[i], NULL);
+        free_permutation(p[i]);
+    }
+
+    free_lookup_table(normal);
 
     return 0;
 }
