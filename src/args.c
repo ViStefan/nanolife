@@ -40,13 +40,9 @@ int parse_enum(char* arg, int *value, ...)
     {
         en = va_arg(args, char *);
         *value = i++;
-        if (en == NULL)
-            goto not_found;
-    } while (strcmp(arg, en));
-    return 0;
-
-not_found:
-    return 1;
+    } while (en != NULL && strcmp(arg, en));
+    va_end(args);
+    return en == NULL;
 }
 
 int parse_array(char *arg, int size, int *value)
