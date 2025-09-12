@@ -84,3 +84,24 @@ size_t count_monotone(lookup_table_t *table, size_t border)
 
     return n;
 }
+
+size_t count_monotone_on_the_fly(map_t *m, size_t border, lookup_table_t *normal)
+{
+    size_t size = 1 << (m->width * m->height);
+    int current;
+    int prev = normal->table[normalize_bits(0, m)];
+    size_t n = 1;
+    for (size_t i = 1; i < size; ++i)
+    {
+        current = normal->table[normalize_bits(i, m)];
+        if (current != prev)
+        {
+            prev = current;
+            ++n;
+            if (n > border)
+                return n;
+        }
+    }
+
+    return n;
+}

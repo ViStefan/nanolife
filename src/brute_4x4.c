@@ -30,6 +30,7 @@ typedef struct {
     unsigned long long start;
     unsigned long long stop;
     int *minimum;
+    int *blocks;
     pthread_mutex_t *minimum_mutex;
     int threads;
     enum AGGREGATION aggr;
@@ -76,14 +77,21 @@ void *brute_thread(void *t)
     {
         bool should_print = false;
         map_init_blocks(td->m);
-        lookup_table_t *table = generate_table(td->m, 1, td->normal);
-        int c = count_monotone(table, (size_t)td->minimum);
+        // TODO: no need to generate whole table to just count monotonous intervals
+        // lookup_table_t *table = generate_table(td->m, 1, td->normal);
+        int c = count_monotone_on_the_fly(td->m, (size_t)td->minimum, td->normal);
         if (td->aggr == MIN)
         {
             pthread_mutex_lock(td->minimum_mutex);
             if (c < *td->minimum)
             {
                 *td->minimum = c;
+                *td->blocks = td->m->blocks;
+                should_print = true;
+            }
+            else if (c == *td->minimum && td->m->blocks < *td->blocks)
+            {
+                *td->blocks = td->m->blocks;
                 should_print = true;
             }
             pthread_mutex_unlock(td->minimum_mutex);
@@ -91,10 +99,10 @@ void *brute_thread(void *t)
         if (should_print || td->aggr == ALL)
         {
             char *s = permutation_serialize(td->p);
-            printf("%d : %s\n", c, s);
+            printf("%d (%d) : %s\n", c, td->m->blocks, s);
             free(s);
         }
-        free_lookup_table(table);
+        // free_lookup_table(table);
         *td->progress += 1;
 
         int status = permutation_next(td->p, td->threads);
@@ -111,6 +119,7 @@ void *brute_thread(void *t)
 
 int bruteforce(int width, int height, int threads, enum AGGREGATION aggr) {
     int minimum = INT_MAX;
+    int blocks = INT_MAX;
     unsigned long long progress = 0;
 
     const unsigned long long aligned_size = factorial(width * height) + threads;
@@ -156,6 +165,7 @@ int bruteforce(int width, int height, int threads, enum AGGREGATION aggr) {
 
         td[i].aggr = aggr;
         td[i].minimum = &minimum;
+        td[i].blocks = &blocks;
         td[i].minimum_mutex = &minimum_mutex;
 
         td[i].progress = &progress;

@@ -12,6 +12,7 @@ typedef struct {
 } lookup_table_t;
 
 size_t count_monotone(lookup_table_t *t, size_t border);
+size_t count_monotone_on_the_fly(map_t *m, size_t border, lookup_table_t *normal);
 lookup_table_t *generate_table(map_t *m, int threads, lookup_table_t *normal);
 void free_lookup_table(lookup_table_t *t);
 
