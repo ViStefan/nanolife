@@ -197,5 +197,7 @@ int main(int argc, char **argv)
     PARSE_UINT(threads)
     PARSE_ENUM(AGGREGATION, aggr)
 
+    setvbuf(stdout, NULL, _IOLBF, 0);
+
     bruteforce(width, height, threads, aggr);
 }
