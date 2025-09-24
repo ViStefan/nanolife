@@ -1,44 +1,41 @@
-#include <limits.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include "args.h"
 #include "map.h"
 #include "pretty_print.h"
 #include "utils.h"
-#include "args.h"
+#include <limits.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 // TODO: move to lookup_table_t
-#define TYPE(F) \
-    F(OUTCOME), \
-    F(NEIGHBOUR), \
-    F(FREQUENCY), \
-    F(ROTATE)
+#define TYPE(F) F(OUTCOME), F(NEIGHBOUR), F(FREQUENCY), F(ROTATE)
 
-#define RENDER(F) \
-    F(PRETTY), \
-    F(DEC), \
-    F(HEX), \
-    F(BIN)
+#define RENDER(F) F(PRETTY), F(DEC), F(HEX), F(BIN)
 
 ENUM(TYPE)
 ENUM(RENDER)
 
-void usage(char *name)
-{
+void usage(char *name) {
     printf("usage: %s TYPE SIZE MAPPING RENDER ALIGN THREADS\n", name);
     printf("\tTYPE\tlookup table type: OUTCOME|NEIGHBOUR|FREQUENCY|ROTATE\n");
-    printf("\t\toutcome\t\tlife b3s23 outcomes in array\n");
-    printf("\t\tneighbour\tarray of arrays of neighbourhoods leading to particular outcomes\n");
-    printf("\t\tfrequency\tarray of neighbourhoods sorted by appearance frequency\n");
-    printf("\t\trotate\t\tsmall lookup table for matrix rotation and flipping\n");
-    printf("\tSIZE\tnumber 'N' or pair 'WxH' for square or rectangle correspondingly\n");
-    printf("\tMAPPING\tenumeration of cells in matrix in form '0,1,2,3,...,n-1' in arbitrary order or 'DEFAULT' for sequential\n");
+    printf("\t\tOUTCOME\t\tlife b3s23 outcomes in array\n");
+    printf("\t\tNEIGHBOUR\tarray of arrays of neighbourhoods leading to "
+           "particular outcomes\n");
+    printf("\t\tFREQUENCY\tarray of neighbourhoods sorted by appearance "
+           "frequency\n");
+    printf(
+        "\t\tROTATE\t\tsmall lookup table for matrix rotation and flipping\n");
+    printf("\tSIZE\tnumber 'N' or pair 'WxH' for square or rectangle "
+           "correspondingly\n");
+    printf(
+        "\tMAPPING\tenumeration of cells in matrix in form '0,1,2,3,...,n-1' "
+        "in arbitrary order or 'DEFAULT' for sequential\n");
     printf("\tRENDER\trender type: PRETTY|DEC|HEX|BIN\n");
-    printf("\tALIGN\tnumber 'N', alignment in bits for table chunk, ignored if render type is pretty\n");
+    printf("\tALIGN\tnumber 'N', alignment in bits for table chunk, ignored if "
+           "render type is pretty\n");
     printf("\tTHREADS\tnumber of parallel threads\n");
 }
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     ARGS_INIT(argc, argv, 6)
     PARSE_ENUM(TYPE, type)
     PARSE_PAIR(width, height)
@@ -54,36 +51,35 @@ int main(int argc, char **argv)
 
     char *mapping_str = serialize_sequence(mapping, width * height);
 
-    printf("attempt to print table of type %d of size %dx%d with mapping (%s), render %d and align %d in %d threads\n",
-        type, width, height, mapping_str, render, align, threads);
+    printf("attempt to print table of type %d of size %dx%d with mapping (%s), "
+           "render %d and align %d in %d threads\n",
+           type, width, height, mapping_str, render, align, threads);
 
     free(mapping_str);
 
     lookup_table_t *table;
     bool was_generated = false;
-    if (type == OUTCOME)
-    {
+    if (type == OUTCOME) {
         table = generate_table(&m, threads, NULL);
         was_generated = true;
-    }
-    else
+    } else {
         USAGE
+    }
 
-    if (render == PRETTY)
-    {
+    if (render == PRETTY) {
         pretty_print_table(table);
         // TODO: BUG: something overflows for 6x6 chunks with default mapping
-        printf("monotonous outcome intervals: %zu\n", count_monotone(table, INT_MAX));
-    }
-    else if (render == DEC || render == HEX || render == BIN)
-    {
+        printf("monotonous outcome intervals: %zu\n",
+               count_monotone(table, INT_MAX));
+    } else if (render == DEC || render == HEX || render == BIN) {
         print_as_code(table);
-    }
-    else
+    } else {
         USAGE
+    }
 
-    if (was_generated)
+    if (was_generated) {
         free_lookup_table(table);
+    }
 
     return 0;
 }

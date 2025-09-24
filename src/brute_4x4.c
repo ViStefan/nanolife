@@ -1,24 +1,22 @@
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <pthread.h>
-#include <limits.h>
-#include <unistd.h>
+#include "args.h"
 #include "johnson_trotter.h"
 #include "lookup_table.h"
 #include "utils.h"
-#include "args.h"
+#include <limits.h>
+#include <pthread.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
-#define AGGREGATION(F) \
-    F(MIN), \
-    F(ALL)
+#define AGGREGATION(F) F(MIN), F(ALL)
 
 ENUM(AGGREGATION)
 
-void usage(char *name)
-{
+void usage(char *name) {
     printf("usage: %s SIZE THREADS AGGREGATION\n", name);
-    printf("\tSIZE\tnumber 'N' or pair 'WxH' for square or rectangle correspondingly\n");
+    printf("\tSIZE\tnumber 'N' or pair 'WxH' for square or rectangle "
+           "correspondingly\n");
     printf("\tTHREADS\tnumber of parallel threads\n");
     printf("\tAGGREGATION\tsupject to print, one of MIN|ALL\n");
 }
@@ -43,61 +41,61 @@ typedef struct {
     unsigned long long max_progress;
 } progress_data;
 
-void *progress_thread(void *t)
-{
+void *progress_thread(void *t) {
     int time = 0;
-    progress_data *pd = ((progress_data*)t);
+    progress_data *pd = ((progress_data *)t);
 
-    while (*pd->progress < pd->max_progress)
-    {
+    while (*pd->progress < pd->max_progress) {
         sleep(pd->sleep);
         ++time;
+
         int percent = *pd->progress * 100 / pd->max_progress;
         int speed = *pd->progress / (time * pd->sleep);
         int approx = (pd->max_progress - *pd->progress) / speed;
+
         int sec = approx % 60;
         int min = (approx /= 60) % 60;
         int hour = (approx /= 60);
-        if (hour != 0)
-            fprintf(stderr, "%d%%, %dh %dmin %ds left\n", percent, hour, min, sec);
-        else if (min != 0)
+
+        if (hour != 0) {
+            fprintf(stderr, "%d%%, %dh %dmin %ds left\n", percent, hour, min,
+                    sec);
+        } else if (min != 0) {
             fprintf(stderr, "%d%%, %dmin %ds left\n", percent, min, sec);
-        else
+        } else {
             fprintf(stderr, "%d%%, %ds left\n", percent, sec);
+        }
     }
 
     return NULL;
 }
 
-void *brute_thread(void *t)
-{
+void *brute_thread(void *t) {
     thread_data *td = ((thread_data *)t);
 
-    for (unsigned long long i = td->start; i < td->stop; ++i)
-    {
+    for (unsigned long long i = td->start; i < td->stop; ++i) {
         bool should_print = false;
         map_init_blocks(td->m);
-        // TODO: no need to generate whole table to just count monotonous intervals
-        // lookup_table_t *table = generate_table(td->m, 1, td->normal);
-        int c = count_monotone_on_the_fly(td->m, (size_t)td->minimum, td->normal);
-        if (td->aggr == MIN)
-        {
+        /*
+         * TODO: no need to generate whole table to just count monotonous
+         * intervals lookup_table_t *table = generate_table(td->m, 1,
+         * td->normal);
+         */
+        int c =
+            count_monotone_on_the_fly(td->m, (size_t)td->minimum, td->normal);
+        if (td->aggr == MIN) {
             pthread_mutex_lock(td->minimum_mutex);
-            if (c < *td->minimum)
-            {
+            if (c < *td->minimum) {
                 *td->minimum = c;
                 *td->blocks = td->m->blocks;
                 should_print = true;
-            }
-            else if (c == *td->minimum && td->m->blocks < *td->blocks)
-            {
+            } else if (c == *td->minimum && td->m->blocks < *td->blocks) {
                 *td->blocks = td->m->blocks;
                 should_print = true;
             }
             pthread_mutex_unlock(td->minimum_mutex);
         }
-        if (should_print || td->aggr == ALL)
-        {
+        if (should_print || td->aggr == ALL) {
             char *s = permutation_serialize(td->p);
             printf("%d (%d) : %s\n", c, td->m->blocks, s);
             free(s);
@@ -107,8 +105,9 @@ void *brute_thread(void *t)
 
         int status = permutation_next(td->p, td->threads);
 
-        if (status == PERMUTATION_OVERFLOW)
+        if (status == PERMUTATION_OVERFLOW) {
             break;
+        }
     }
 
     free_permutation(td->p);
@@ -136,13 +135,13 @@ int bruteforce(int width, int height, int threads, enum AGGREGATION aggr) {
     map_t normal_map;
     normal_map.width = width;
     normal_map.height = height;
-    permutation_t *normal_permutation = permutation_init(normal_map.width * normal_map.height);
+    permutation_t *normal_permutation =
+        permutation_init(normal_map.width * normal_map.height);
     normal_map.value = normal_permutation->value;
 
     lookup_table_t *normal = generate_table(&normal_map, threads, NULL);
 
-    for (int i = 0; i < threads; ++i)
-    {
+    for (int i = 0; i < threads; ++i) {
         p[i] = permutation_init(width * height);
         permutation_next(p[i], i);
         td[i].p = p[i];
@@ -172,7 +171,7 @@ int bruteforce(int width, int height, int threads, enum AGGREGATION aggr) {
 
         pthread_create(&pthreads[i], NULL, brute_thread, &td[i]);
     }
-    
+
     pthread_t progress_pt;
     progress_data pd;
     pd.max_progress = aligned_size;
@@ -182,16 +181,16 @@ int bruteforce(int width, int height, int threads, enum AGGREGATION aggr) {
     pthread_create(&progress_pt, NULL, progress_thread, &pd);
     pthread_detach(progress_pt);
 
-    for (int i = 0; i < threads; ++i)
+    for (int i = 0; i < threads; ++i) {
         pthread_join(pthreads[i], NULL);
+    }
 
     free_lookup_table(normal);
 
     return 0;
 }
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     ARGS_INIT(argc, argv, 3)
     PARSE_PAIR(width, height)
     PARSE_UINT(threads)

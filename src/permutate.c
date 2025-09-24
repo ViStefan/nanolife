@@ -1,40 +1,35 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include "johnson_trotter.h"
 #include <errno.h>
 #include <pthread.h>
-#include "johnson_trotter.h"
+#include <stdio.h>
+#include <stdlib.h>
 
+/* TODO: parametrize */
 #define THREADS 4
 
-typedef struct
-{
+typedef struct {
     permutation_t *perm;
     int threads;
     void (*callback)(permutation_t *p);
 } thread_data;
 
-
-void *permutate_thread(void *t)
-{
-    thread_data *td = ((thread_data*) t);
+void *permutate_thread(void *t) {
+    thread_data *td = ((thread_data *)t);
     permutation_t *p = td->perm;
 
-    while (p->step <= p->size)
-    {
+    while (p->step <= p->size) {
         td->callback(p);
         permutation_next(p, td->threads);
-    } 
+    }
 
     return NULL;
 }
 
-void permutate(int number, int threads, void (*callback)(permutation_t *p))
-{
+void permutate(int number, int threads, void (*callback)(permutation_t *p)) {
     thread_data td[threads];
     pthread_t pthreads[threads];
 
-    for (int i = 0; i < threads; ++i)
-    {
+    for (int i = 0; i < threads; ++i) {
         td[i].callback = callback;
         td[i].threads = threads;
         td[i].perm = permutation_init(number);
@@ -42,22 +37,20 @@ void permutate(int number, int threads, void (*callback)(permutation_t *p))
         pthread_create(&pthreads[i], NULL, permutate_thread, &td[i]);
     }
 
-    for (int i = 0; i < threads; ++i)
-    {
+    for (int i = 0; i < threads; ++i) {
         pthread_join(pthreads[i], NULL);
         free_permutation(td[i].perm);
     }
 }
 
-void usage(char **argv, int status)
-{
+void usage(char **argv, int status) {
     printf("usage: %s NUM\n", argv[0]);
     printf("\tNUM\tsane number of elements to permutate\n");
     exit(status);
 }
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
+    /* TODO: replace with args.h macro magic */
     if (argc != 2)
         usage(argv, 1);
 

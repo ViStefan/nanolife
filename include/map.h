@@ -1,8 +1,7 @@
 #ifndef MAP_H
 #define MAP_H
 
-typedef struct
-{
+typedef struct {
     int *value;
     int width;
     int height;

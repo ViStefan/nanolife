@@ -1,7 +1,9 @@
-#define PERMUTATION_OVERFLOW -1
+#ifndef JOHNSON_TROTTER_H
+#define JOHNSON_TROTTER_H
 
-typedef struct
-{
+#define PERMUTATION_OVERFLOW (-1)
+
+typedef struct {
     int n;
     unsigned long long size;
     unsigned long long step;
@@ -14,3 +16,5 @@ void permutation_print(permutation_t *p);
 char *permutation_serialize(permutation_t *p);
 int permutation_next(permutation_t *p, int n);
 void free_permutation(permutation_t *p);
+
+#endif /* JOHNSON_TROTTER_H */
